@@ -1,0 +1,447 @@
+@import "tailwindcss";
+
+/* Pure CSS Reset & Utility System */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fredoka', 'Sniglet', 'Outfit', sans-serif;
+  background: radial-gradient(circle at top left, #fffbeb, #fef3c7, #e0f2fe);
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+/* Flex & Grid Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+.w-full { width: 100%; }
+.max-w-5xl { max-width: 64rem; }
+.max-w-6xl { max-width: 72rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.p-6 { padding: 1.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.text-5xl { font-size: 3rem; line-height: 1; }
+.text-6xl { font-size: 3.75rem; line-height: 1; }
+.text-7xl { font-size: 4.5rem; line-height: 1; }
+
+.font-bold { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
+.font-black { font-weight: 900; }
+.text-center { text-align: center; }
+.rounded-full { border-radius: 9999px; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-3xl { border-radius: 1.5rem; }
+
+
+/* Custom Kid-Friendly Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.05); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+@keyframes angry-wiggle {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  20% { transform: translateX(-4px) rotate(-5deg); }
+  40% { transform: translateX(4px) rotate(5deg); }
+  60% { transform: translateX(-4px) rotate(-5deg); }
+  80% { transform: translateX(4px) rotate(5deg); }
+}
+
+@keyframes sparkle-shine {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1) rotate(360deg); opacity: 0.9; }
+}
+
+@keyframes rocket-launch {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(60px, -100px) scale(1.4) rotate(15deg); opacity: 1; }
+  100% { transform: translate(140px, -220px) scale(0.5) rotate(30deg); opacity: 0; }
+}
+
+@keyframes sunbeam-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+@keyframes spotlight {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+@keyframes water-fill {
+  0% { height: 10%; }
+  100% { height: 90%; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 1.2s ease-in-out infinite;
+}
+
+.animate-angry-wiggle {
+  animation: angry-wiggle 0.6s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle-shine 1s ease-out forwards;
+}
+
+.animate-rocket {
+  animation: rocket-launch 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-sunbeam {
+  animation: sunbeam-pulse 4s ease-in-out infinite;
+}
+
+.animate-spotlight {
+  animation: spotlight 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
+
+/* Glassmorphic UI Card */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.04);
+}
+
+.story-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(254, 243, 199, 0.8));
+  border: 4px solid #fde047;
+  border-radius: 2rem;
+  box-shadow: 0 12px 0 0 #f59e0b, 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+
+.btn-game-primary {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border: 3px solid #7dd3fc;
+  box-shadow: 0 6px 0 0 #0369a1, 0 10px 15px -3px rgba(0,0,0,0.2);
+  transition: all 0.15s ease;
+}
+
+.btn-game-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #0369a1, 0 12px 20px -3px rgba(0,0,0,0.25);
+}
+
+.btn-game-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #0369a1, 0 4px 6px -1px rgba(0,0,0,0.2);
+}
+
+.btn-game-accent {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  border: 3px solid #fef08a;
+  box-shadow: 0 6px 0 0 #b45309, 0 10px 15px -3px rgba(0,0,0,0.2);
+  transition: all 0.15s ease;
+}
+
+.btn-game-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #b45309, 0 12px 20px -3px rgba(0,0,0,0.25);
+}
+
+.btn-game-accent:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #b45309, 0 4px 6px -1px rgba(0,0,0,0.2);
+}
+
+.btn-game-emerald {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+  border: 3px solid #a7f3d0;
+  box-shadow: 0 6px 0 0 #047857, 0 10px 15px -3px rgba(0,0,0,0.2);
+  transition: all 0.15s ease;
+}
+
+.btn-game-emerald:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #047857, 0 12px 20px -3px rgba(0,0,0,0.25);
+}
+
+.btn-game-emerald:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #047857, 0 4px 6px -1px rgba(0,0,0,0.2);
+}
+
+/* Vibrant Toy-Box 3D Buttons for Kids */
+.toy-btn-pink {
+  background: linear-gradient(180deg, #f472b6 0%, #db2777 100%);
+  border: 3px solid #fbcfe8;
+  box-shadow: 0 6px 0 0 #be185d, 0 10px 15px -3px rgba(190, 24, 93, 0.3);
+  color: white;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 900;
+  transition: all 0.15s ease;
+}
+.toy-btn-pink:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #be185d, 0 12px 20px -3px rgba(190, 24, 93, 0.35);
+}
+.toy-btn-pink:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #be185d;
+}
+
+.toy-btn-yellow {
+  background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+  border: 3px solid #fef08a;
+  box-shadow: 0 6px 0 0 #ca8a04, 0 10px 15px -3px rgba(202, 138, 4, 0.3);
+  color: #451a03;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 900;
+  transition: all 0.15s ease;
+}
+.toy-btn-yellow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #ca8a04, 0 12px 20px -3px rgba(202, 138, 4, 0.35);
+}
+.toy-btn-yellow:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #ca8a04;
+}
+
+.toy-btn-sky {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border: 3px solid #bae6fd;
+  box-shadow: 0 6px 0 0 #0369a1, 0 10px 15px -3px rgba(3, 105, 161, 0.3);
+  color: white;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 900;
+  transition: all 0.15s ease;
+}
+.toy-btn-sky:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 #0369a1, 0 12px 20px -3px rgba(3, 105, 161, 0.35);
+}
+.toy-btn-sky:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 #0369a1;
+}
+
+.toy-card-3d {
+  background: #ffffff;
+  border: 4px solid #7dd3fc;
+  border-radius: 2rem;
+  box-shadow: 0 10px 0 0 #38bdf8, 0 20px 25px -5px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
+}
+.toy-card-3d:hover {
+  transform: translateY(-4px);
+  border-color: #facc15;
+  box-shadow: 0 14px 0 0 #eab308, 0 25px 30px -5px rgba(0,0,0,0.12);
+}
+
+/* Font Families for Storybook */
+.font-storybook {
+  font-family: 'Playfair Display', 'Georgia', serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', 'Playfair Display', serif;
+}
+
+.font-reading {
+  font-family: 'Spectral', 'Georgia', serif;
+}
+
+/* Genuine Book Spine & Open Book 3D Container */
+.real-storybook-container {
+  perspective: 1200px;
+  background-color: #1a0b04;
+}
+
+/* Deluxe Open Book Hardcover Base */
+.real-book-cover {
+  background: 
+    radial-gradient(ellipse at top center, rgba(245, 158, 11, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at center, #452414 0%, #28140b 70%, #150904 100%);
+  border-radius: 2rem;
+  border: 4px solid #78350f;
+  box-shadow: 
+    0 30px 60px -12px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(245, 158, 11, 0.25),
+    inset 0 2px 4px rgba(254, 243, 199, 0.3),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.9);
+}
+
+/* Stacked Paper Page Edges (3D thickness effect on sides of open book) */
+.book-paper-stack-left {
+  box-shadow:
+    -2px 2px 0 0 #f3e5d0,
+    -4px 4px 0 0 #e6d3ba,
+    -6px 6px 0 0 #d9c1a3,
+    -8px 8px 0 0 #ccaf8d,
+    -10px 10px 0 0 #bf9d76,
+    -14px 14px 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+.book-paper-stack-right {
+  box-shadow:
+    2px 2px 0 0 #f3e5d0,
+    4px 4px 0 0 #e6d3ba,
+    6px 6px 0 0 #d9c1a3,
+    8px 8px 0 0 #ccaf8d,
+    10px 10px 0 0 #bf9d76,
+    14px 14px 20px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Vibrant Parchment Paper Texture & Gold Leaf Page Border */
+.parchment-page {
+  background-color: #fffdf8;
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(254, 249, 235, 0.7) 60%, rgba(246, 233, 206, 0.85) 100%),
+    linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.08) 100%);
+  box-shadow: inset 0 0 40px rgba(180, 120, 50, 0.15);
+}
+
+/* Sunken Center Spine Gutter (Shadow where left & right pages meet) */
+.book-spine-gutter {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.45) 45%,
+    rgba(0, 0, 0, 0.65) 50%,
+    rgba(0, 0, 0, 0.45) 55%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+}
+
+/* Illuminated Ornate Drop Cap */
+.story-drop-cap::first-letter {
+  font-family: 'Cinzel', 'Playfair Display', serif;
+  font-size: 2.1rem;
+  line-height: 1.7rem;
+  font-weight: 900;
+  float: left;
+  margin-top: 0.05rem;
+  margin-right: 0.45rem;
+  margin-bottom: -0.05rem;
+  color: #78350f;
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1.5px solid #b45309;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.9);
+  text-shadow: 1px 1px 0px rgba(255,255,255,0.9);
+}
+
+/* Ribbon Bookmark Hanging Down */
+.ribbon-bookmark {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+}
+
+/* Dog-ear Page Curl Effect on Hover */
+.page-curl-corner {
+  position: relative;
+}
+
+.page-curl-corner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 0 0;
+  border-color: transparent transparent #d97706 transparent;
+  transition: all 0.3s ease;
+  box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.page-curl-corner:hover::after {
+  border-width: 0 0 24px 24px;
+}
+
+/* Gold Leaf Filigree Border */
+.gold-leaf-border {
+  border: 2px solid transparent;
+  border-image: linear-gradient(to bottom right, #fbbf24, #fef08a, #d97706, #78350f) 1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #fdf6e3;
+}
+::-webkit-scrollbar-thumb {
+  background: #d97706;
+  border-radius: 4px;
+}
+

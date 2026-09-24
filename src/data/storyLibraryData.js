@@ -1,0 +1,85 @@
+// Story Library Catalog Data
+
+export const STORY_LIBRARY = [
+  {
+    id: "dolly-midnight-adventure",
+    title: "Dolly's Midnight Adventure",
+    subtitle: "A story about curiosity, magical secrets, and helping lost friends",
+    coverEmoji: "🎀✨",
+    author: "Anushka",
+    category: "Adventure & Science",
+    badge: "🌟 Interactive Magical Quest",
+    readingTime: "5 mins",
+    chaptersCount: 6,
+    ageGroup: "Ages 3-9",
+    moral: "A small act of kindness can bring light and joy to lost friends everywhere.",
+    description: "Everyone thought Lily was just an ordinary doll. But Lily had a secret! Every night when the house went quiet, she came alive! Follow Lily on a magical midnight quest through a glowing door to the Castle of Lost Toys.",
+    color: "from-pink-400 via-rose-500 to-purple-600",
+    isAvailable: true
+  },
+  {
+    id: "secret-cave",
+    title: "The Secret Cave",
+    subtitle: "A story about true friendship, empathy, and sticking together",
+    coverEmoji: "🐿️🌿",
+    author: "Anushka",
+    category: "Friendship & Honesty",
+    badge: "🌟 Interactive Choice Story",
+    readingTime: "6 mins",
+    chaptersCount: 7,
+    ageGroup: "Ages 3-9",
+    moral: "A real friend doesn't leave you behind just because the adventure is waiting.",
+    description: "Deep inside a huge green forest, Milo the fox 🦊 and Toby the rabbit 🐰 find a tiny golden arrow carved into a tree! Join them on a magical adventure where true friendship is tested at the secret cave.",
+    color: "from-amber-500 via-orange-500 to-emerald-600",
+    isAvailable: true
+  },
+  {
+    id: "bottle-that-waited",
+    title: "The Bottle That Waited",
+    subtitle: "A story about care, empathy, and everyday helpers",
+    coverEmoji: "💧",
+    author: "Anushka",
+    category: "Care & Empathy",
+    badge: "🌟 Interactive Picture Story",
+    readingTime: "6 mins",
+    chaptersCount: 10,
+    ageGroup: "Ages 4-9",
+    moral: "Take care of the little things that care for you every day.",
+    description: "Meet Buddy! A special little blue water bottle with a rocket sticker. When Aarav forgets Buddy on the classroom desk after the home bell rings, Buddy waits patiently in the quiet room. Join Buddy on a warm adventure of hope and care!",
+    color: "from-sky-400 via-sky-500 to-indigo-600",
+    isAvailable: true
+  },
+  {
+    id: "curious-rocket",
+    title: "The Little Rocket's Big Wish",
+    subtitle: "A story about curiosity, dreams, and reaching for stars",
+    coverEmoji: "🚀",
+    author: "Anushka",
+    category: "Adventure & Science",
+    badge: "🌟 Interactive Space Quest",
+    readingTime: "5 mins",
+    chaptersCount: 4,
+    ageGroup: "Ages 4-9",
+    moral: "Big dreams start with tiny brave steps every single day!",
+    description: "Join Rocky the little red rocket on a magical journey to explore the friendly stars and discover how far kindness can travel across the galaxy!",
+    color: "from-amber-400 via-orange-500 to-rose-500",
+    isAvailable: true
+  },
+  {
+    id: "bear-lost-pencil",
+    title: "Benny Bear & The Magic Pencil",
+    subtitle: "A story about sharing, creativity, and honesty",
+    coverEmoji: "✏️",
+    author: "Anushka",
+    category: "Friendship & Honesty",
+    badge: "🌟 Interactive Art Adventure",
+    readingTime: "7 mins",
+    chaptersCount: 3,
+    ageGroup: "Ages 3-8",
+    moral: "Creativity grows much brighter when shared with good friends.",
+    description: "Benny Bear loves drawing rainbow doodles with his golden magic pencil in Cozy Forest. Join Benny and his friends to create a magical forest masterpiece together!",
+    color: "from-emerald-400 via-teal-500 to-emerald-700",
+    isAvailable: true
+  }
+];
+
