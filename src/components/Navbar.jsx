@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Mic, MicOff, Maximize2, Minimize2, Play, Pause, Home, Sparkles, Trophy, Palette, Gamepad2, Moon, Sun, Globe } from 'lucide-react';
+import { Volume2, VolumeX, Mic, MicOff, Maximize2, Minimize2, Play, Pause, Home, Trophy, Palette, Gamepad2, Moon, Sun, Globe, RotateCw, ChevronDown } from 'lucide-react';
 import { soundFX } from '../services/soundEffects';
 
 export default function Navbar({
@@ -12,7 +12,7 @@ export default function Navbar({
   isAutoPlayActive = false,
   onToggleAutoPlay = () => { },
   onGoHome = () => { },
-  activeStoryTitle = "THE BOTTLE THAT WAITED",
+  activeStoryTitle = "The Bottle That Waited",
   onOpenBadges = () => { },
   onOpenEasel = () => { },
   onOpenMemoryGame = () => { },
@@ -51,174 +51,199 @@ export default function Navbar({
   ];
 
   return (
-    <header className={`sticky top-0 z-40 transition-colors duration-700 px-3 py-2 shadow-lg select-none text-white font-['Fredoka',sans-serif] ${isBedtimeMode
-        ? 'bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border-b-4 border-indigo-400'
-        : 'bg-gradient-to-r from-sky-500 via-sky-600 to-indigo-600 border-b-4 border-sky-300'
-      }`}>
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+    <header 
+      className="sticky top-0 z-40 w-full h-[70px] md:h-[80px] flex items-center px-2 md:px-6 select-none font-['Fredoka',sans-serif] bg-transparent"
+      style={{
+        borderBottom: "6px solid #8b5a2b"
+      }}
+    >
+      <div className="w-full max-w-[1600px] mx-auto flex items-center justify-between gap-2 h-full py-2">
 
-        {/* Left: Library Home Button & Story Title */}
-        <div className="flex items-center gap-2.5">
+        {/* --- LEFT GROUP --- */}
+        <div className="flex items-center gap-3 h-full">
+          
+          {/* Library Button - Wood 3D */}
           <button
             onClick={() => {
               soundFX.playPop();
               onGoHome();
             }}
-            className="px-3 py-1.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs md:text-sm flex items-center gap-1.5 shadow-md active:scale-95 transition-all border-2 border-white cursor-pointer shrink-0"
+            className="h-full px-4 md:px-5 rounded-2xl flex items-center gap-2 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#6b421a] bg-gradient-to-b from-[#e39c4d] to-[#b36e26] shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_4px_6px_rgba(0,0,0,0.3)]"
             title="Return to Storyverse Library"
           >
-            <Home className="w-4 h-4 text-amber-950" />
-            <span>Library 📚</span>
+            <Home className="w-5 h-5 md:w-6 md:h-6 text-[#4a2e12]" strokeWidth={2.5} />
+            <span className="text-[#4a2e12] font-black text-sm md:text-base tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">Library</span>
+            <span className="text-base hidden sm:inline drop-shadow-sm">📚</span>
           </button>
 
-          <div className="hidden sm:flex flex-col min-w-0">
-            <h1 className="text-xs md:text-sm font-black tracking-wide text-white drop-shadow-sm flex items-center gap-1 truncate">
-              <span>{isBedtimeMode ? '🌙' : '💧'}</span>
-              <span className="truncate">{activeStoryTitle}</span>
-            </h1>
-            <p className="text-[10px] font-semibold text-sky-100">
-              Interactive Storybook Reader
-            </p>
+          {/* Story Title - Parchment 3D */}
+          <div className="hidden lg:flex items-center h-full px-5 rounded-2xl border-[3px] border-[#cbb389] bg-gradient-to-b from-[#fffbf0] to-[#f4e4c4] shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_6px_rgba(0,0,0,0.2)] relative">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl drop-shadow-md">💧</span>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-base md:text-lg font-black text-[#0f4c81] leading-tight tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+                  {activeStoryTitle}
+                </h1>
+                <p className="text-[10px] md:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  Interactive Storybook Reader
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Center: Interactive Learning Shortcuts Bar */}
-        <div className="flex items-center gap-1.5 bg-white/15 p-1 rounded-2xl border border-white/20 shadow-inner">
-
-          {/* Trophy Badges Button */}
+        {/* --- MIDDLE GROUP 1 (Features) --- */}
+        <div className="flex items-center justify-center gap-3 h-full">
+          
+          {/* Badges Button - Gold 3D */}
           <button
             onClick={() => {
               soundFX.playSparkle();
               onOpenBadges();
             }}
-            className="px-2.5 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs flex items-center gap-1 shadow-xs border border-white active:scale-95 transition-all cursor-pointer"
-            title="Open Trophy Chest & Badges"
+            className="h-full px-4 md:px-5 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#b57317] bg-gradient-to-b from-[#ffd65e] to-[#ffaa1c] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
           >
-            <Trophy className="w-3.5 h-3.5 fill-amber-950" />
-            <span>Badges</span>
-            <span className="bg-amber-950 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full font-black ml-0.5">
-              {unlockedBadgesCount}
-            </span>
+            <Trophy className="w-5 h-5 text-[#7a4e10]" strokeWidth={2.5} />
+            <span className="text-[#7a4e10] font-black text-sm md:text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">Badges</span>
           </button>
 
-          {/* Coloring Easel Button */}
+          {/* Color Button - Pink 3D */}
           <button
             onClick={() => {
               soundFX.playPop();
               onOpenEasel();
             }}
-            className="px-2.5 py-1 rounded-xl bg-pink-400 hover:bg-pink-300 text-pink-950 font-black text-xs flex items-center gap-1 shadow-xs border border-white active:scale-95 transition-all cursor-pointer"
-            title="Open Storybook Coloring Easel"
+            className="h-full px-4 md:px-5 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#942753] bg-gradient-to-b from-[#ff8fc3] to-[#e84d8d] shadow-[inset_0_2px_4px_rgba(255,255,255,0.5),0_4px_6px_rgba(0,0,0,0.2)]"
           >
-            <Palette className="w-3.5 h-3.5" />
-            <span>Color 🎨</span>
+            <Palette className="w-5 h-5 text-[#6b1638]" strokeWidth={2.5} />
+            <span className="text-[#6b1638] font-black text-sm md:text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">Color</span>
           </button>
 
-          {/* Memory Match Mini-Game Button */}
+          {/* Game Button - Green 3D */}
           <button
             onClick={() => {
               soundFX.playPop();
               onOpenMemoryGame();
             }}
-            className="px-2.5 py-1 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs flex items-center gap-1 shadow-xs border border-white active:scale-95 transition-all cursor-pointer"
-            title="Play Memory Match Mini-Game"
+            className="h-full px-4 md:px-5 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#197554] bg-gradient-to-b from-[#7cf5c8] to-[#2bc08e] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
           >
-            <Gamepad2 className="w-3.5 h-3.5" />
-            <span>Game 🧩</span>
+            <Gamepad2 className="w-5 h-5 text-[#11543b]" strokeWidth={2.5} />
+            <span className="text-[#11543b] font-black text-sm md:text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">Game</span>
           </button>
-
-          {/* Bedtime Mode Toggle */}
-          <button
-            onClick={() => {
-              soundFX.playPop();
-              onToggleBedtimeMode();
-            }}
-            className={`px-2.5 py-1 rounded-xl font-black text-xs flex items-center gap-1 border transition-all cursor-pointer ${isBedtimeMode
-                ? 'bg-indigo-300 text-indigo-950 border-indigo-100 shadow-sm'
-                : 'bg-white/20 hover:bg-white/30 text-white border-white/30'
-              }`}
-            title="Toggle Bedtime Calm Mode"
-          >
-            {isBedtimeMode ? <Moon className="w-3.5 h-3.5 text-indigo-950 fill-indigo-950" /> : <Sun className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />}
-            <span className="hidden md:inline">{isBedtimeMode ? 'Bedtime 🌙' : 'Daytime ☀️'}</span>
-          </button>
-
-          {/* Language Selector */}
-          <select
-            value={activeLanguage}
-            onChange={(e) => {
-              soundFX.playPop();
-              onChangeLanguage(e.target.value);
-            }}
-            className="bg-white/20 hover:bg-white/30 text-white font-bold text-xs px-2 py-1 rounded-xl border border-white/30 cursor-pointer outline-none text-center"
-            title="Change Story Language"
-          >
-            {LANGUAGES.map(l => (
-              <option key={l.code} value={l.code} className="text-slate-900 font-medium">
-                {l.flag} {l.code.toUpperCase()}
-              </option>
-            ))}
-          </select>
-
         </div>
 
-        {/* Right: Sound & Player Controls */}
-        <div className="flex items-center gap-1.5">
+        {/* --- MIDDLE GROUP 2 (Settings) --- */}
+        <div className="flex items-center justify-center gap-3 h-full">
+          {/* Daytime Toggle - Parchment 3D */}
+          <div className="hidden xl:flex items-center h-full px-4 rounded-2xl border-[3px] border-[#cbb389] bg-gradient-to-b from-[#fffbf0] to-[#f4e4c4] shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_6px_rgba(0,0,0,0.2)] gap-2">
+            <Sun className="w-5 h-5 text-[#ed8924] fill-[#ed8924] drop-shadow-sm" />
+            <span className="text-[#5c4a3d] font-black text-sm md:text-base">Daytime</span>
+            <button 
+              onClick={() => {
+                soundFX.playPop();
+                onToggleBedtimeMode();
+              }}
+              className={`w-12 h-6 rounded-full relative transition-colors duration-300 border-2 border-transparent ${!isBedtimeMode ? 'bg-[#4396f6]' : 'bg-slate-400'} shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]`}
+            >
+              <div className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300 ${!isBedtimeMode ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
 
-          {/* STORYTELLER AUTOPLAY MODE BUTTON */}
+          {/* Language Toggle - Parchment 3D */}
+          <div className="hidden xl:flex items-center h-full px-4 rounded-2xl border-[3px] border-[#cbb389] bg-gradient-to-b from-[#fffbf0] to-[#f4e4c4] shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_6px_rgba(0,0,0,0.2)] gap-1 cursor-pointer">
+            <Globe className="w-5 h-5 text-[#5c4a3d]" strokeWidth={2.5} />
+            <select
+              value={activeLanguage}
+              onChange={(e) => {
+                soundFX.playPop();
+                onChangeLanguage(e.target.value);
+              }}
+              className="bg-transparent text-[#5c4a3d] font-black text-sm outline-none cursor-pointer appearance-none pr-1 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>
+                  GB {l.code.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-[#5c4a3d] pointer-events-none" strokeWidth={3} />
+          </div>
+        </div>
+
+        {/* --- RIGHT GROUP (Controls) --- */}
+        <div className="flex items-center justify-end gap-3 h-full">
+          
+          {/* Auto-Play Button - Blue Glossy 3D */}
           <button
             onClick={() => {
               soundFX.playPop();
               onToggleAutoPlay();
             }}
-            className={`px-3 py-1.5 rounded-2xl font-black text-xs flex items-center gap-1 shadow-md active:scale-95 transition-all border-2 border-white cursor-pointer ${isAutoPlayActive
-                ? 'bg-amber-400 text-amber-950 ring-2 ring-amber-300 animate-pulse'
-                : 'bg-white/20 hover:bg-white/30 text-white'
-              }`}
-            title="Toggle Hands-Free Storyteller Mode"
+            className={`h-full px-5 rounded-full flex items-center gap-2 shadow-[inset_0_2px_4px_rgba(255,255,255,0.5),0_4px_6px_rgba(0,0,0,0.3)] active:scale-95 transition-transform cursor-pointer border-[3px] border-[#094794] ${
+              isAutoPlayActive 
+                ? 'bg-gradient-to-b from-[#5c9ce6] to-[#2068b8] animate-pulse' 
+                : 'bg-gradient-to-b from-[#4bc1ff] to-[#0d74e8]'
+            }`}
           >
-            {isAutoPlayActive ? <Pause className="w-3.5 h-3.5 text-amber-950 fill-amber-950" /> : <Play className="w-3.5 h-3.5 text-white fill-white" />}
-            <span className="hidden sm:inline">{isAutoPlayActive ? 'Playing...' : '▶ Auto-Play'}</span>
+            {isAutoPlayActive ? (
+               <Pause className="w-5 h-5 text-white fill-white drop-shadow-md" />
+            ) : (
+               <Play className="w-5 h-5 text-white fill-white drop-shadow-md" />
+            )}
+            <span className="text-white font-black text-sm md:text-base drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Auto-Play</span>
           </button>
 
-          {/* Fullscreen Button */}
+          {/* Refresh/Fullscreen Button - Wood Circle 3D */}
           <button
             onClick={toggleFullScreen}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 transition-all border border-white/40 cursor-pointer"
-            title="Toggle Fullscreen Mode"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-[#8c5d2c] bg-gradient-to-b from-[#eed4aa] to-[#d4ab75] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)] flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
+            title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            {isFullscreen ? (
+               <Minimize2 className="w-5 h-5 md:w-6 md:h-6 text-[#6b421a]" strokeWidth={2.5} />
+            ) : (
+               <RotateCw className="w-5 h-5 md:w-6 md:h-6 text-[#6b421a]" strokeWidth={2.5} />
+            )}
           </button>
 
-          {/* Narrator Voice Button */}
-          <button
-            onClick={() => {
-              soundFX.playPop();
-              onToggleNarrator();
-            }}
-            className={`px-2.5 py-1.5 rounded-2xl flex items-center gap-1 text-xs font-black transition-all border cursor-pointer ${narratorEnabled
-                ? 'bg-emerald-400 text-emerald-950 border-white shadow-sm'
-                : 'bg-white/10 text-sky-200 border-white/20'
-              }`}
-            title="Toggle Voice Narration"
-          >
-            {narratorEnabled ? <Mic className="w-3.5 h-3.5 text-emerald-950" /> : <MicOff className="w-3.5 h-3.5 text-sky-300" />}
-          </button>
-
-          {/* Sound FX Button */}
+          {/* Sound Toggle - Green Circle 3D */}
           <button
             onClick={() => {
               soundFX.playPop();
               onToggleSound();
             }}
-            className={`px-2.5 py-1.5 rounded-2xl flex items-center gap-1 text-xs font-black transition-all border cursor-pointer ${!soundMuted
-                ? 'bg-amber-400 text-amber-950 border-white shadow-sm'
-                : 'bg-white/10 text-sky-200 border-white/20'
-              }`}
-            title="Toggle Sound FX"
+            className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)] flex items-center justify-center active:scale-95 transition-transform cursor-pointer ${
+              !soundMuted 
+                ? 'bg-gradient-to-b from-[#a1e8ab] to-[#5cb86b] border-[#367a41]' 
+                : 'bg-gradient-to-b from-[#e2e8e3] to-[#b0b8b2] border-[#7a857d]'
+            }`}
           >
-            {!soundMuted ? <Volume2 className="w-3.5 h-3.5 text-amber-950" /> : <VolumeX className="w-3.5 h-3.5 text-sky-300" />}
+            {!soundMuted ? (
+              <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-[#1b4d24]" strokeWidth={2.5} />
+            ) : (
+              <VolumeX className="w-5 h-5 md:w-6 md:h-6 text-[#4a544c]" strokeWidth={2.5} />
+            )}
           </button>
+
+          {/* Narrator Toggle - Gold Circle 3D */}
+          <button
+             onClick={() => {
+              soundFX.playPop();
+              onToggleNarrator();
+            }}
+            className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)] flex items-center justify-center active:scale-95 transition-transform cursor-pointer ${
+              narratorEnabled 
+                ? 'bg-gradient-to-b from-[#ffd65e] to-[#ffaa1c] border-[#b57317]' 
+                : 'bg-gradient-to-b from-[#e2e8e3] to-[#b0b8b2] border-[#7a857d]'
+            }`}
+          >
+            {narratorEnabled ? (
+              <Mic className="w-5 h-5 md:w-6 md:h-6 text-[#7a4e10]" strokeWidth={2.5} />
+            ) : (
+              <MicOff className="w-5 h-5 md:w-6 md:h-6 text-[#4a544c]" stroke width={2.5} />
+            )}
+          </button>
+
         </div>
       </div>
     </header>
