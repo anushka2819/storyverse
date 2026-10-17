@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { Award, X, Sparkles, Printer } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function CareCertificateModal({ isOpen, onClose, careItem }) {
-  const [explorerName, setExplorerName] = useState('Super Explorer');
+export default function CareCertificateModal({
+  isOpen,
+  onClose,
+  careItem = {
+    icon: '💖',
+    label: 'Everyday Helpers & Friends',
+    tip: 'I promise to take care of my friends, share my toys, and treat every living creature with kindness!'
+  },
+  storyTitle = "Storyverse Reading Adventure"
+}) {
+  const [explorerName, setExplorerName] = useState('Super Story Explorer');
 
-  if (!isOpen || !careItem) return null;
+  if (!isOpen) return null;
 
   const handlePrint = () => {
-    confetti({ particleCount: 100, spread: 80 });
+    confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
     window.print();
   };
 

@@ -4,6 +4,7 @@ import { STORY_SCENES } from '../data/storyData';
 
 export default function StoryPlotChart({
   currentScene,
+  scenes = STORY_SCENES,
   currentSentenceIndex = 0,
   onSelectSentence = () => {},
   onSelectScene = () => {}
@@ -43,10 +44,10 @@ export default function StoryPlotChart({
     }
   }
 
-  // Calculate full story arc nodes (macro plot across 10 scenes)
-  const fullStoryPoints = STORY_SCENES.map((sc, idx) => {
+  // Calculate full story arc nodes (macro plot across scenes)
+  const fullStoryPoints = (scenes || STORY_SCENES).map((sc, idx) => {
     const avgEmotion = sc.sentences?.[0]?.plotData?.emotionScore || 50;
-    const x = padding + (idx / (STORY_SCENES.length - 1)) * (width - padding * 2);
+    const x = padding + (idx / Math.max(1, (scenes || STORY_SCENES).length - 1)) * (width - padding * 2);
     const y = height - padding - (avgEmotion / 100) * (height - padding * 2);
     return { x, y, scene: sc, index: idx };
   });

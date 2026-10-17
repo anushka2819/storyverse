@@ -13,6 +13,14 @@ import TrophyChestModal, { BADGES_LIST } from './components/TrophyChestModal';
 import MemoryGameModal from './components/MemoryGameModal';
 import VoiceRecorderWidget from './components/VoiceRecorderWidget';
 import BedtimeCalmOverlay from './components/BedtimeCalmOverlay';
+import StoryMakerModal from './components/StoryMakerModal';
+import StoryQuizModal from './components/StoryQuizModal';
+import CareCertificateModal from './components/CareCertificateModal';
+import SoundboardWidget from './components/SoundboardWidget';
+import SoundscapeMixerModal from './components/SoundscapeMixerModal';
+import StickerStageModal from './components/StickerStageModal';
+import ReadingPassportModal from './components/ReadingPassportModal';
+import StoryArcModal from './components/StoryArcModal';
 import { WORD_MAGIC_DICTIONARY } from './data/wordMagicData';
 
 import { STORY_SCENES } from './data/storyData';
@@ -56,6 +64,14 @@ export default function App() {
   const [showEaselModal, setShowEaselModal] = useState(false);
   const [showBadgesModal, setShowBadgesModal] = useState(false);
   const [showMemoryGameModal, setShowMemoryGameModal] = useState(false);
+  const [showStoryMakerModal, setShowStoryMakerModal] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [showCareCertificateModal, setShowCareCertificateModal] = useState(false);
+  const [showSoundscapeModal, setShowSoundscapeModal] = useState(false);
+  const [showPuppetStageModal, setShowPuppetStageModal] = useState(false);
+  const [showReadingPassportModal, setShowReadingPassportModal] = useState(false);
+  const [showStoryArcModal, setShowStoryArcModal] = useState(false);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
 
   // FX & Animation States
   const [bottleState, setBottleState] = useState('happy');
@@ -366,8 +382,24 @@ export default function App() {
     return (
       <div className="flex flex-col min-h-screen relative">
         <BedtimeCalmOverlay isActive={isBedtimeMode} />
-        <HomePage onSelectStory={handleSelectStory} />
+        <HomePage
+          onSelectStory={handleSelectStory}
+          onOpenBadges={() => setShowBadgesModal(true)}
+          onOpenEasel={() => setShowEaselModal(true)}
+          onOpenMemoryGame={() => setShowMemoryGameModal(true)}
+          onOpenStoryMaker={() => setShowStoryMakerModal(true)}
+          onOpenQuiz={() => setShowQuizModal(true)}
+          onOpenCareCertificate={() => setShowCareCertificateModal(true)}
+          onOpenPuppetTheater={() => setShowPuppetStageModal(true)}
+          onOpenPassport={() => setShowReadingPassportModal(true)}
+          onOpenSoundscape={() => setShowSoundscapeModal(true)}
+          isBedtimeMode={isBedtimeMode}
+          onToggleBedtimeMode={() => setIsBedtimeMode(prev => !prev)}
+        />
         <CuteStoryChatbot onSelectStory={handleSelectStory} />
+
+        {/* Global Sound Lab Synthesizer Foley Widget */}
+        <SoundboardWidget onOpenSoundscapeMixer={() => setShowSoundscapeModal(true)} />
 
         {/* Floating Educational Feature Modals */}
         {activeWordMagic && (
@@ -395,15 +427,87 @@ export default function App() {
             onGameWon={() => unlockBadge('word-wizard')}
           />
         )}
+        {showStoryMakerModal && (
+          <StoryMakerModal
+            isOpen={showStoryMakerModal}
+            onClose={() => setShowStoryMakerModal(false)}
+          />
+        )}
+        {showQuizModal && (
+          <StoryQuizModal
+            isOpen={showQuizModal}
+            onClose={() => setShowQuizModal(false)}
+            storyId={activeStoryId}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showCareCertificateModal && (
+          <CareCertificateModal
+            isOpen={showCareCertificateModal}
+            onClose={() => setShowCareCertificateModal(false)}
+            storyTitle={activeStoryObj.title}
+          />
+        )}
+        {showSoundscapeModal && (
+          <SoundscapeMixerModal
+            isOpen={showSoundscapeModal}
+            onClose={() => setShowSoundscapeModal(false)}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showPuppetStageModal && (
+          <StickerStageModal
+            isOpen={showPuppetStageModal}
+            onClose={() => setShowPuppetStageModal(false)}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showReadingPassportModal && (
+          <ReadingPassportModal
+            isOpen={showReadingPassportModal}
+            onClose={() => setShowReadingPassportModal(false)}
+            unlockedBadgesCount={unlockedBadges.length}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showStoryArcModal && (
+          <StoryArcModal
+            isOpen={showStoryArcModal}
+            onClose={() => setShowStoryArcModal(false)}
+            currentScene={currentScene}
+            scenes={currentStoryScenes}
+            currentSentenceIndex={safeSentenceIndex}
+            onSelectSentence={setCurrentSentenceIndex}
+            onSelectScene={(sId) => {
+              setCurrentSceneId(sId);
+              setCurrentSentenceIndex(0);
+            }}
+          />
+        )}
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen w-full flex flex-col justify-between relative text-slate-800 font-['Fredoka',sans-serif] selection:bg-amber-300 overflow-x-hidden pb-6 transition-colors duration-1000 ${isBedtimeMode
+    <div
+      className={`min-h-screen w-full flex flex-col justify-between relative text-slate-800 font-['Fredoka',sans-serif] selection:bg-amber-300 overflow-x-hidden pb-6 transition-colors duration-1000 ${isBedtimeMode
         ? 'bg-gradient-to-b from-indigo-950 via-slate-900 via-60% to-purple-950 text-slate-100'
         : 'bg-gradient-to-b from-sky-200 via-amber-50 via-60% to-sky-100'
-      }`}>
+        }`}
+      style={!isBedtimeMode ? {
+        backgroundImage: `
+          radial-gradient(circle at 12% 18%, rgba(254, 240, 138, 0.45) 0%, transparent 25%),
+          radial-gradient(circle at 88% 16%, rgba(244, 114, 182, 0.35) 0%, transparent 25%),
+          radial-gradient(circle at 75% 80%, rgba(147, 197, 253, 0.4) 0%, transparent 30%),
+          radial-gradient(#f472b6 1.8px, transparent 1.8px),
+          radial-gradient(#38bdf8 1.8px, transparent 1.8px),
+          radial-gradient(#facc15 1.8px, transparent 1.8px),
+          linear-gradient(135deg, #e0f2fe 0%, #fffbeb 50%, #fdf2f8 100%)
+        `,
+        backgroundSize: 'auto, auto, auto, 52px 52px, 52px 52px, 52px 52px, 100% 100%',
+        backgroundPosition: '0 0, 0 0, 0 0, 0 0, 26px 26px, 13px 39px, 0 0'
+      } : undefined}
+    >
 
       {/* Bedtime Atmosphere Overlay */}
       <BedtimeCalmOverlay isActive={isBedtimeMode} />
@@ -422,6 +526,12 @@ export default function App() {
         onOpenBadges={() => setShowBadgesModal(true)}
         onOpenEasel={() => setShowEaselModal(true)}
         onOpenMemoryGame={() => setShowMemoryGameModal(true)}
+        onOpenStoryMaker={() => setShowStoryMakerModal(true)}
+        onOpenQuiz={() => setShowQuizModal(true)}
+        onOpenCareCertificate={() => setShowCareCertificateModal(true)}
+        onOpenPuppetTheater={() => setShowPuppetStageModal(true)}
+        onOpenPassport={() => setShowReadingPassportModal(true)}
+        onOpenSoundscape={() => setShowSoundscapeModal(true)}
         isBedtimeMode={isBedtimeMode}
         onToggleBedtimeMode={() => setIsBedtimeMode(prev => !prev)}
         activeLanguage={activeLanguage}
@@ -468,8 +578,72 @@ export default function App() {
                     {currentScene.title}
                   </h2>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-amber-950 shrink-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => {
+                      soundFX.playPop();
+                      setShowQuizModal(true);
+                    }}
+                    className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-purple-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                    title="Take the Story Comprehension Quiz"
+                  >
+                    <span>💡 Quiz</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      soundFX.playSparkle();
+                      setShowCareCertificateModal(true);
+                    }}
+                    className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-300 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                    title="Print your Kindness & Reading Award Certificate"
+                  >
+                    <span>🏆 Award</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      soundFX.playPop();
+                      setShowStoryArcModal(true);
+                    }}
+                    className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-indigo-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                    title="View Dynamic Emotional Narrative Arc"
+                  >
+                    <span>📈 Arc</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      soundFX.playPop();
+                      setShowVoiceRecorder(prev => !prev);
+                    }}
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer ${
+                      showVoiceRecorder
+                        ? 'bg-rose-500 text-white border-rose-600'
+                        : 'bg-rose-100 hover:bg-rose-200 text-rose-700 border-rose-200'
+                    }`}
+                    title="Record and play back your reading voice!"
+                  >
+                    <span>🎙️ Record</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      soundFX.playPop();
+                      setShowPuppetStageModal(true);
+                    }}
+                    className="bg-pink-100 hover:bg-pink-200 text-pink-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                    title="Open Puppet Theater & Sticker Studio"
+                  >
+                    <span>🎭 Puppet</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      soundFX.playSparkle();
+                      setShowReadingPassportModal(true);
+                    }}
+                    className="bg-teal-100 hover:bg-teal-200 text-teal-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-teal-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                    title="View Reading Passport & Visas"
+                  >
+                    <span>📓 Passport</span>
+                  </button>
+                  <span className="text-[11px] font-bold text-amber-950 shrink-0 ml-1">
                     Line {safeSentenceIndex + 1}/{currentSentences.length}
                   </span>
                   <button className="bg-sky-100 p-1.5 rounded-full text-sky-600 hover:bg-sky-200 shadow-sm border border-sky-200" onClick={() => {
@@ -525,6 +699,13 @@ export default function App() {
                 onObjectTap={handleCanvasObjectClick}
                 onChecklistToggle={handleChecklistToggle}
               />
+
+              {/* INTERACTIVE VOICE RECORD & PLAYBACK WIDGET */}
+              {showVoiceRecorder && (
+                <div className="mb-2 animate-fadeIn">
+                  <VoiceRecorderWidget currentSentenceText={currentSentence?.text} />
+                </div>
+              )}
 
               {/* INTEGRATED PAGE TURN NAVIGATION CONTROLS */}
               <div className="pt-1 mt-auto font-['Fredoka',sans-serif]">
@@ -603,6 +784,66 @@ export default function App() {
             onGameWon={() => unlockBadge('word-wizard')}
           />
         )}
+        {showStoryMakerModal && (
+          <StoryMakerModal
+            isOpen={showStoryMakerModal}
+            onClose={() => setShowStoryMakerModal(false)}
+          />
+        )}
+        {showQuizModal && (
+          <StoryQuizModal
+            isOpen={showQuizModal}
+            onClose={() => setShowQuizModal(false)}
+            storyId={activeStoryId}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showCareCertificateModal && (
+          <CareCertificateModal
+            isOpen={showCareCertificateModal}
+            onClose={() => setShowCareCertificateModal(false)}
+            storyTitle={activeStoryObj.title}
+          />
+        )}
+        {showSoundscapeModal && (
+          <SoundscapeMixerModal
+            isOpen={showSoundscapeModal}
+            onClose={() => setShowSoundscapeModal(false)}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showPuppetStageModal && (
+          <StickerStageModal
+            isOpen={showPuppetStageModal}
+            onClose={() => setShowPuppetStageModal(false)}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showReadingPassportModal && (
+          <ReadingPassportModal
+            isOpen={showReadingPassportModal}
+            onClose={() => setShowReadingPassportModal(false)}
+            unlockedBadgesCount={unlockedBadges.length}
+            onBadgeEarned={unlockBadge}
+          />
+        )}
+        {showStoryArcModal && (
+          <StoryArcModal
+            isOpen={showStoryArcModal}
+            onClose={() => setShowStoryArcModal(false)}
+            currentScene={currentScene}
+            scenes={currentStoryScenes}
+            currentSentenceIndex={safeSentenceIndex}
+            onSelectSentence={setCurrentSentenceIndex}
+            onSelectScene={(sId) => {
+              setCurrentSceneId(sId);
+              setCurrentSentenceIndex(0);
+            }}
+          />
+        )}
+
+        {/* Global Sound Lab Synthesizer Foley Widget */}
+        <SoundboardWidget onOpenSoundscapeMixer={() => setShowSoundscapeModal(true)} />
       </main>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Mic, MicOff, Maximize2, Minimize2, Play, Pause, Home, Trophy, Palette, Gamepad2, Moon, Sun, Globe, RotateCw, ChevronDown } from 'lucide-react';
+import { Volume2, VolumeX, Mic, MicOff, Maximize2, Minimize2, Play, Pause, Home, Trophy, Palette, Gamepad2, Moon, Sun, Globe, RotateCw, ChevronDown, Sparkles, HelpCircle, Award } from 'lucide-react';
 import { soundFX } from '../services/soundEffects';
 
 export default function Navbar({
@@ -16,6 +16,12 @@ export default function Navbar({
   onOpenBadges = () => { },
   onOpenEasel = () => { },
   onOpenMemoryGame = () => { },
+  onOpenStoryMaker = () => { },
+  onOpenQuiz = () => { },
+  onOpenCareCertificate = () => { },
+  onOpenPuppetTheater = () => { },
+  onOpenPassport = () => { },
+  onOpenSoundscape = () => { },
   isBedtimeMode = false,
   onToggleBedtimeMode = () => { },
   activeLanguage = 'en',
@@ -52,7 +58,7 @@ export default function Navbar({
 
   return (
     <header 
-      className="sticky top-0 z-40 w-full h-[70px] md:h-[80px] flex items-center px-2 md:px-6 select-none font-['Fredoka',sans-serif] bg-transparent"
+      className="sticky top-0 z-40 w-full h-[70px] md:h-[80px] flex items-center px-2 md:px-6 select-none font-['Fredoka',sans-serif] bg-gradient-to-r from-[#c9803b] via-[#eed1a4] to-[#c9803b] shadow-md"
       style={{
         borderBottom: "6px solid #8b5a2b"
       }}
@@ -79,9 +85,14 @@ export default function Navbar({
           {/* Story Title - Parchment 3D */}
           <div className="hidden lg:flex items-center h-full px-5 rounded-2xl border-[3px] border-[#cbb389] bg-gradient-to-b from-[#fffbf0] to-[#f4e4c4] shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_4px_6px_rgba(0,0,0,0.2)] relative">
             <div className="flex items-center gap-3">
-              <span className="text-3xl drop-shadow-md">💧</span>
+              <span className="text-3xl drop-shadow-md">
+                {activeStoryTitle.includes('Dolly') ? '🎀' :
+                 activeStoryTitle.includes('Cave') ? '🦊' :
+                 activeStoryTitle.includes('Rocket') ? '🚀' :
+                 activeStoryTitle.includes('Bear') ? '🐻' : '💧'}
+              </span>
               <div className="flex flex-col justify-center">
-                <h1 className="text-base md:text-lg font-black text-[#0f4c81] leading-tight tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+                <h1 className="text-xs md:text-sm font-black text-[#0f4c81] leading-tight tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] max-w-[190px] truncate">
                   {activeStoryTitle}
                 </h1>
                 <p className="text-[10px] md:text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -125,10 +136,88 @@ export default function Navbar({
               soundFX.playPop();
               onOpenMemoryGame();
             }}
-            className="h-full px-4 md:px-5 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#197554] bg-gradient-to-b from-[#7cf5c8] to-[#2bc08e] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            className="h-full px-3.5 md:px-4 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#197554] bg-gradient-to-b from-[#7cf5c8] to-[#2bc08e] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
           >
             <Gamepad2 className="w-5 h-5 text-[#11543b]" strokeWidth={2.5} />
-            <span className="text-[#11543b] font-black text-sm md:text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">Game</span>
+            <span className="text-[#11543b] font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">Game</span>
+          </button>
+
+          {/* Story Maker Button - Royal Indigo 3D */}
+          <button
+            onClick={() => {
+              soundFX.playMagicChime();
+              onOpenStoryMaker();
+            }}
+            className="h-full px-3.5 md:px-4 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#312e81] bg-gradient-to-b from-[#818cf8] to-[#4f46e5] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Create your own custom story!"
+          >
+            <Sparkles className="w-4 h-4 text-white" strokeWidth={2.5} />
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Maker</span>
+          </button>
+
+          {/* Quiz Button - Purple 3D */}
+          <button
+            onClick={() => {
+              soundFX.playPop();
+              onOpenQuiz();
+            }}
+            className="h-full px-3.5 md:px-4 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#6b21a8] bg-gradient-to-b from-[#c084fc] to-[#9333ea] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Test what you learned from the story!"
+          >
+            <HelpCircle className="w-4 h-4 text-white" strokeWidth={2.5} />
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Quiz</span>
+          </button>
+
+          {/* Certificate Button - Orange 3D */}
+          <button
+            onClick={() => {
+              soundFX.playSparkle();
+              onOpenCareCertificate();
+            }}
+            className="hidden sm:flex h-full px-3.5 md:px-4 rounded-full items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#9a3412] bg-gradient-to-b from-[#fb923c] to-[#ea580c] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Print your Kindness & Reading Award Certificate!"
+          >
+            <Award className="w-4 h-4 text-white" strokeWidth={2.5} />
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Award</span>
+          </button>
+
+          {/* Puppet Theater Button - Rose/Pink 3D */}
+          <button
+            onClick={() => {
+              soundFX.playPop();
+              onOpenPuppetTheater();
+            }}
+            className="hidden lg:flex h-full px-3.5 md:px-4 rounded-full items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#9d174d] bg-gradient-to-b from-[#f472b6] to-[#db2777] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Direct your own story puppet show!"
+          >
+            <span className="text-sm">🎭</span>
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Puppet</span>
+          </button>
+
+          {/* Reading Passport Button - Teal 3D */}
+          <button
+            onClick={() => {
+              soundFX.playSparkle();
+              onOpenPassport();
+            }}
+            className="hidden md:flex h-full px-3.5 md:px-4 rounded-full items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#0f766e] bg-gradient-to-b from-[#2dd4bf] to-[#0d9488] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Open your Storyverse Reading Passport!"
+          >
+            <span className="text-sm">📓</span>
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Passport</span>
+          </button>
+
+          {/* Atmosphere Mixer Button - Cyan/Blue 3D */}
+          <button
+            onClick={() => {
+              soundFX.playSparkle();
+              onOpenSoundscape();
+            }}
+            className="hidden xl:flex h-full px-3.5 md:px-4 rounded-full items-center gap-1.5 active:scale-95 transition-transform cursor-pointer border-[3px] border-[#0369a1] bg-gradient-to-b from-[#38bdf8] to-[#0284c7] shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_4px_6px_rgba(0,0,0,0.2)]"
+            title="Blend calming ambient soundscapes!"
+          >
+            <span className="text-sm">🎧</span>
+            <span className="text-white font-black text-xs md:text-sm drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">Mixer</span>
           </button>
         </div>
 

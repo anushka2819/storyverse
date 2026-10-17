@@ -39,6 +39,27 @@ export const BADGES_LIST = [
     color: 'from-sky-400 to-blue-600'
   },
   {
+    id: 'puppet-master',
+    title: 'Puppet Director',
+    emoji: '🎭',
+    description: 'Staged and directed an animated show in the Puppet Theater!',
+    color: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: 'passport-adventurer',
+    title: 'Passport Adventurer',
+    emoji: '📓',
+    description: 'Stamped your travel visa and personalized your Reading Passport!',
+    color: 'from-amber-500 to-orange-600'
+  },
+  {
+    id: 'soundscape-dj',
+    title: 'Soundscape Maestro',
+    emoji: '🎧',
+    description: 'Blended and synthesized calming ambient soundscapes!',
+    color: 'from-indigo-500 to-cyan-500'
+  },
+  {
     id: 'story-master',
     title: 'Story Master',
     emoji: '👑',

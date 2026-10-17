@@ -12,6 +12,7 @@ export default function InteractivePanel({
   onChecklistToggle = () => { }
 }) {
   const [inspectedObject, setInspectedObject] = React.useState(null);
+  const [isRecording, setIsRecording] = React.useState(false);
 
   if (!scene) return null;
 
@@ -47,11 +48,19 @@ export default function InteractivePanel({
                 </div>
                 <div className="flex flex-col">
                   <p className="text-[13px] font-bold text-rose-900 leading-tight">Read Aloud Voice Recorder</p>
-                  <p className="text-[10px] font-semibold text-rose-700">Tap 🔴 to record your reading voice!</p>
+                  <p className="text-[10px] font-semibold text-rose-700">
+                    {isRecording ? 'Listening & recording your voice! 🎤' : 'Tap 🔴 to record your reading voice!'}
+                  </p>
                 </div>
               </div>
-              <button className="bg-rose-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 shrink-0 shadow-sm active:scale-95">
-                <span className="w-1.5 h-1.5 bg-white rounded-full"></span> Record
+              <button
+                onClick={() => setIsRecording(prev => !prev)}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 shrink-0 shadow-sm active:scale-95 transition-all cursor-pointer ${
+                  isRecording ? 'bg-red-600 text-white animate-pulse' : 'bg-rose-500 hover:bg-rose-600 text-white'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-white'}`}></span>
+                {isRecording ? 'Stop ⏹' : 'Record 🔴'}
               </button>
             </div>
           </div>
