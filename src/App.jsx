@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Volume2 } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import Navbar from './components/Navbar';
 import StorybookFrame from './components/StorybookFrame';
 import SceneControls from './components/SceneControls';
@@ -11,12 +11,10 @@ import WordMagicModal from './components/WordMagicModal';
 import ColoringEaselModal from './components/ColoringEaselModal';
 import TrophyChestModal, { BADGES_LIST } from './components/TrophyChestModal';
 import MemoryGameModal from './components/MemoryGameModal';
-import VoiceRecorderWidget from './components/VoiceRecorderWidget';
 import BedtimeCalmOverlay from './components/BedtimeCalmOverlay';
 import StoryMakerModal from './components/StoryMakerModal';
 import StoryQuizModal from './components/StoryQuizModal';
 import CareCertificateModal from './components/CareCertificateModal';
-import SoundboardWidget from './components/SoundboardWidget';
 import SoundscapeMixerModal from './components/SoundscapeMixerModal';
 import StickerStageModal from './components/StickerStageModal';
 import ReadingPassportModal from './components/ReadingPassportModal';
@@ -58,6 +56,32 @@ export default function App() {
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [unlockedBadges, setUnlockedBadges] = useState(['story-explorer']);
   const [learnedWords, setLearnedWords] = useState([]);
+  const [completedStories, setCompletedStories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('storyverse_completed_stories');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isPaused, setIsPaused] = useState(false);
+
+  const markStoryCompleted = (storyId) => {
+    setCompletedStories(prev => {
+      if (prev.includes(storyId)) return prev;
+      const updated = [...prev, storyId];
+      try {
+        localStorage.setItem('storyverse_completed_stories', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Storage error:', e);
+      }
+      return updated;
+    });
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activeView]);
 
   // Modals
   const [activeWordMagic, setActiveWordMagic] = useState(null);
@@ -71,7 +95,6 @@ export default function App() {
   const [showPuppetStageModal, setShowPuppetStageModal] = useState(false);
   const [showReadingPassportModal, setShowReadingPassportModal] = useState(false);
   const [showStoryArcModal, setShowStoryArcModal] = useState(false);
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
 
   // FX & Animation States
   const [bottleState, setBottleState] = useState('happy');
@@ -80,6 +103,8 @@ export default function App() {
   const [waterStep, setWaterStep] = useState(0);
 
   const autoPlayTimeoutRef = useRef(null);
+  const isPausedRef = useRef(false);
+  const isAutoPlayActiveRef = useRef(false);
 
   const currentScene = currentStoryScenes.find(s => s.id === currentSceneId) || currentStoryScenes[0];
   const currentSentences = currentScene.sentences || [];
@@ -109,11 +134,14 @@ export default function App() {
     });
   };
 
-  // Handle sentence speech narration & auto-play progression
+  // Handle sentence speech narration & auto-play progression on scene/sentence changes
   useEffect(() => {
     if (!currentSentence) return;
 
-    if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
 
     // Apply mood from sentence screenState
     if (currentSentence.screenState?.bottleMood) {
@@ -129,44 +157,61 @@ export default function App() {
       soundFX.playRocketWhoosh();
       setShowRocketLaunch(true);
       setTimeout(() => setShowRocketLaunch(false), 600);
-      unlockBadge('space-cadet');
+      if (activeStoryId === 'curious-rocket') {
+        unlockBadge('space-cadet');
+      }
     } else if (currentSentence.screenState?.animation === 'sparkle') {
       soundFX.playSparkle();
       setShowSparkle(true);
       setTimeout(() => setShowSparkle(false), 500);
     }
 
+    // If currently paused, cancel narration and do not auto-advance
+    if (isPausedRef.current) {
+      narrator.cancel();
+      return;
+    }
+
     // Speak sentence with fallback safety callback for Auto-Play Mode
     if (narratorEnabled) {
       narrator.speakSentence(currentSentence, () => {
-        if (isAutoPlayActive) {
+        if (isAutoPlayActiveRef.current && !isPausedRef.current) {
           autoPlayTimeoutRef.current = setTimeout(() => {
             handleNextSentenceAuto();
           }, 1200);
         }
       });
-    } else if (isAutoPlayActive) {
+    } else if (isAutoPlayActiveRef.current) {
       const timerMs = Math.max(2500, currentSentence.text.length * 80);
       autoPlayTimeoutRef.current = setTimeout(() => {
         handleNextSentenceAuto();
       }, timerMs);
     }
-  }, [currentSceneId, safeSentenceIndex, narratorEnabled, isAutoPlayActive]);
+  }, [currentSceneId, safeSentenceIndex]);
 
   const handleNextSentenceAuto = () => {
+    if (isPausedRef.current || !isAutoPlayActiveRef.current) return;
     if (safeSentenceIndex < currentSentences.length - 1) {
       setCurrentSentenceIndex(safeSentenceIndex + 1);
     } else if (currentSceneId < currentStoryScenes.length) {
       setCurrentSceneId(prev => prev + 1);
       setCurrentSentenceIndex(0);
     } else {
+      markStoryCompleted(activeStoryId);
       unlockBadge('story-master');
+      soundFX.playSuccessFanfare();
+      setShowCareCertificateModal(true);
     }
   };
 
   const handleNextSentence = () => {
+    isPausedRef.current = false;
+    setIsPaused(false);
     narrator.cancel();
-    if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
     if (safeSentenceIndex < currentSentences.length - 1) {
       setCurrentSentenceIndex(safeSentenceIndex + 1);
     } else {
@@ -175,8 +220,13 @@ export default function App() {
   };
 
   const handlePrevSentence = () => {
+    isPausedRef.current = false;
+    setIsPaused(false);
     narrator.cancel();
-    if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
     if (safeSentenceIndex > 0) {
       setCurrentSentenceIndex(safeSentenceIndex - 1);
     } else if (currentSceneId > 1) {
@@ -197,25 +247,55 @@ export default function App() {
     setNarratorEnabled(enabled);
     if (!enabled) {
       narrator.cancel();
-    } else if (currentSentence) {
+    } else if (currentSentence && !isPausedRef.current) {
       narrator.speakSentence(currentSentence);
     }
   };
 
-  const handleToggleAutoPlay = () => {
-    setIsAutoPlayActive(prev => {
-      const next = !prev;
-      if (next) {
-        soundFX.playStoryChime();
-        if (!narratorEnabled) setNarratorEnabled(true);
-        if (currentSentence) {
-          narrator.speakSentence(currentSentence);
+  const handlePauseStory = () => {
+    soundFX.playPop();
+    isPausedRef.current = true;
+    isAutoPlayActiveRef.current = false;
+    setIsPaused(true);
+    setIsAutoPlayActive(false);
+
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
+    narrator.pause();
+  };
+
+  const handlePlayStory = () => {
+    soundFX.playStoryChime();
+    isPausedRef.current = false;
+    isAutoPlayActiveRef.current = true;
+    setIsPaused(false);
+    setIsAutoPlayActive(true);
+
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
+
+    if (currentSentence && narratorEnabled) {
+      narrator.resume();
+      narrator.speakSentence(currentSentence, () => {
+        if (isAutoPlayActiveRef.current && !isPausedRef.current) {
+          autoPlayTimeoutRef.current = setTimeout(() => {
+            handleNextSentenceAuto();
+          }, 1200);
         }
-      } else {
-        if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
-      }
-      return next;
-    });
+      });
+    }
+  };
+
+  const handleToggleAutoPlay = () => {
+    if (isAutoPlayActive && !isPaused) {
+      handlePauseStory();
+    } else {
+      handlePlayStory();
+    }
   };
 
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState({});
@@ -285,13 +365,49 @@ export default function App() {
       if (narratorEnabled) {
         narrator.speak("Hi there! Ready to turn the page?", 'AARAV');
       }
+    } else if (objectType === 'lily') {
+      soundFX.playSparkle();
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500);
+      if (narratorEnabled) {
+        narrator.speak("Shh! Time for our magical midnight adventure!", 'LILY');
+      }
+    } else if (objectType === 'rocky') {
+      soundFX.playRocketWhoosh();
+      setShowRocketLaunch(true);
+      setTimeout(() => setShowRocketLaunch(false), 600);
+      if (narratorEnabled) {
+        narrator.speak("WHOOSH! 3, 2, 1, countdown to starlight!", 'ROCKY');
+      }
+    } else if (objectType === 'benny') {
+      soundFX.playPop();
+      soundFX.playSparkle();
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500);
+      if (narratorEnabled) {
+        narrator.speak("Wiggle wiggle! Let's draw something wonderful together!", 'BENNY');
+      }
+    } else if (objectType === 'milo') {
+      soundFX.playPop();
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500);
+      if (narratorEnabled) {
+        narrator.speak("True friends never leave each other behind! Let's explore!", 'MILO');
+      }
+    } else if (objectType === 'toby') {
+      soundFX.playPop();
+      setShowSparkle(true);
+      setTimeout(() => setShowSparkle(false), 500);
+      if (narratorEnabled) {
+        narrator.speak("Hop hop! Best friends stick together forever!", 'TOBY');
+      }
     } else if (objectType === 'clock') {
       soundFX.playSchoolBell();
     } else if (objectType === 'window') {
       soundFX.playSparkle();
       setShowSparkle(true);
       setTimeout(() => setShowSparkle(false), 500);
-    } else if (currentSceneId === 8) {
+    } else if (activeStoryId === 'bottle-that-waited' && currentSceneId === 8) {
       if (objectType === 'tap' && waterStep === 0) {
         setWaterStep(1);
         soundFX.playWaterGlug();
@@ -308,17 +424,22 @@ export default function App() {
   };
 
   const handleNextScene = () => {
+    setIsPaused(false);
     narrator.cancel();
     if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
     if (currentSceneId < currentStoryScenes.length) {
       setCurrentSceneId(prev => prev + 1);
       setCurrentSentenceIndex(0);
     } else {
+      markStoryCompleted(activeStoryId);
       unlockBadge('story-master');
+      soundFX.playSuccessFanfare();
+      setShowCareCertificateModal(true);
     }
   };
 
   const handlePrevScene = () => {
+    setIsPaused(false);
     narrator.cancel();
     if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
     if (currentSceneId > 1) {
@@ -328,6 +449,7 @@ export default function App() {
   };
 
   const handleSelectStory = (storyId) => {
+    setIsPaused(false);
     narrator.cancel();
     if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
     setActiveStoryId(storyId);
@@ -335,6 +457,7 @@ export default function App() {
     setCurrentSentenceIndex(0);
     setIsAutoPlayActive(false);
     setActiveView('reader');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     soundFX.playSparkle();
     unlockBadge('story-explorer');
   };
@@ -344,6 +467,7 @@ export default function App() {
     if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
     setIsAutoPlayActive(false);
     setActiveView('home');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   // Render text with interactive Word Magic Explorer sparkler buttons
@@ -384,6 +508,7 @@ export default function App() {
         <BedtimeCalmOverlay isActive={isBedtimeMode} />
         <HomePage
           onSelectStory={handleSelectStory}
+          completedStories={completedStories}
           onOpenBadges={() => setShowBadgesModal(true)}
           onOpenEasel={() => setShowEaselModal(true)}
           onOpenMemoryGame={() => setShowMemoryGameModal(true)}
@@ -398,9 +523,6 @@ export default function App() {
         />
         <CuteStoryChatbot onSelectStory={handleSelectStory} />
 
-        {/* Global Sound Lab Synthesizer Foley Widget */}
-        <SoundboardWidget onOpenSoundscapeMixer={() => setShowSoundscapeModal(true)} />
-
         {/* Floating Educational Feature Modals */}
         {activeWordMagic && (
           <WordMagicModal
@@ -411,6 +533,7 @@ export default function App() {
         )}
         {showEaselModal && (
           <ColoringEaselModal
+            storyId={activeStoryId}
             onClose={() => setShowEaselModal(false)}
             onDrawingSaved={() => unlockBadge('little-artist')}
           />
@@ -423,6 +546,7 @@ export default function App() {
         )}
         {showMemoryGameModal && (
           <MemoryGameModal
+            storyId={activeStoryId}
             onClose={() => setShowMemoryGameModal(false)}
             onGameWon={() => unlockBadge('word-wizard')}
           />
@@ -445,13 +569,19 @@ export default function App() {
           <CareCertificateModal
             isOpen={showCareCertificateModal}
             onClose={() => setShowCareCertificateModal(false)}
+            storyId={activeStoryId}
             storyTitle={activeStoryObj.title}
+            isCompleted={completedStories.includes(activeStoryId)}
+            completedStories={completedStories}
+            onSelectStory={(sId) => handleSelectStory(sId)}
+            onContinueReading={(sId) => handleSelectStory(sId || activeStoryId)}
           />
         )}
         {showSoundscapeModal && (
           <SoundscapeMixerModal
             isOpen={showSoundscapeModal}
             onClose={() => setShowSoundscapeModal(false)}
+            storyId={activeStoryId}
             onBadgeEarned={unlockBadge}
           />
         )}
@@ -459,6 +589,7 @@ export default function App() {
           <StickerStageModal
             isOpen={showPuppetStageModal}
             onClose={() => setShowPuppetStageModal(false)}
+            storyId={activeStoryId}
             onBadgeEarned={unlockBadge}
           />
         )}
@@ -476,6 +607,7 @@ export default function App() {
             onClose={() => setShowStoryArcModal(false)}
             currentScene={currentScene}
             scenes={currentStoryScenes}
+            activeStoryId={activeStoryId}
             currentSentenceIndex={safeSentenceIndex}
             onSelectSentence={setCurrentSentenceIndex}
             onSelectScene={(sId) => {
@@ -521,6 +653,7 @@ export default function App() {
         onToggleNarrator={handleToggleNarrator}
         isAutoPlayActive={isAutoPlayActive}
         onToggleAutoPlay={handleToggleAutoPlay}
+        onPauseStory={handlePauseStory}
         onGoHome={handleGoHome}
         activeStoryTitle={activeStoryObj.title}
         onOpenBadges={() => setShowBadgesModal(true)}
@@ -539,17 +672,34 @@ export default function App() {
         unlockedBadgesCount={unlockedBadges.length}
       />
 
-      <main className="w-full max-w-7xl mx-auto flex-1 p-3 md:p-6 flex flex-col gap-6 items-stretch z-10">
+      <main className="w-full max-w-7xl mx-auto flex-1 p-1.5 md:p-2.5 flex flex-col gap-2 items-stretch z-10">
 
-        {/* FULLSCREEN 3D OPEN STORYBOOK WRAPPER */}
-        <div className={`backdrop-blur-md p-3 md:p-5 w-full rounded-[2.5rem] border-4 shadow-2xl relative flex flex-col ${isBedtimeMode ? 'bg-slate-900/90 border-indigo-500' : 'bg-white/80 border-sky-300'
-          }`}>
+        {/* DELUXE OPEN STORYBOOK HARDCOVER CASING */}
+        <div className={`p-2 md:p-2.5 w-full rounded-[1.8rem] md:rounded-[2.2rem] relative flex flex-col real-book-cover shadow-[0_20px_50px_-15px_rgba(0,0,0,0.85),0_0_40px_rgba(245,158,11,0.2)] border-3 md:border-4 ${
+          isBedtimeMode ? 'border-indigo-600' : 'border-[#78350f]'
+        }`}>
+
+          {/* 4 Antique Gold Fleur-de-lis Corner Ornaments */}
+          <div className="absolute top-1.5 left-1.5 text-xl md:text-2xl text-amber-400 pointer-events-none select-none drop-shadow-md">⚜️</div>
+          <div className="absolute top-1.5 right-1.5 text-xl md:text-2xl text-amber-400 pointer-events-none select-none drop-shadow-md scale-x-[-1]">⚜️</div>
+          <div className="absolute bottom-1.5 left-1.5 text-xl md:text-2xl text-amber-400 pointer-events-none select-none drop-shadow-md scale-y-[-1]">⚜️</div>
+          <div className="absolute bottom-1.5 right-1.5 text-xl md:text-2xl text-amber-400 pointer-events-none select-none drop-shadow-md scale-[-1]">⚜️</div>
+
+          {/* Stitched Gold Foil Perimeter Line */}
+          <div className="absolute inset-1.5 md:inset-2 rounded-[1.5rem] md:rounded-[1.9rem] border border-amber-400/30 pointer-events-none border-dashed" />
+
+          {/* Hanging Silk Ribbon Bookmark (Top Center Spine) */}
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center pointer-events-none drop-shadow-2xl">
+            <div className="w-6 md:w-8 h-12 md:h-14 bg-rose-700 ribbon-bookmark border-x border-amber-300/40 relative flex items-center justify-center">
+              <span className="text-xs md:text-sm mb-1.5 drop-shadow-md">🔖</span>
+            </div>
+          </div>
 
           {/* ALWAYS SIDE-BY-SIDE 2-PAGE OPEN STORYBOOK SPREAD */}
-          <div className="grid grid-cols-12 gap-0 items-stretch w-full flex-1 min-h-0 relative rounded-xl overflow-hidden shadow-2xl">
+          <div className="grid grid-cols-12 gap-0 items-stretch w-full flex-1 min-h-[430px] md:min-h-[470px] lg:min-h-[500px] relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-[#fffdf7] border-2 border-amber-900/30">
 
             {/* LEFT PAGE: PICTURE STORYBOOK ILLUSTRATION */}
-            <div className="col-span-6 h-full min-h-0 flex flex-col justify-center relative overflow-hidden">
+            <div className="col-span-6 h-full min-h-0 flex flex-col justify-center relative overflow-hidden parchment-page book-page-curve-left book-paper-stack-left rounded-l-2xl md:rounded-l-3xl border-y-4 border-l-6 border-r-0 border-amber-800/80">
               <StorybookFrame
                 scene={currentScene}
                 activeStoryId={activeStoryId}
@@ -566,96 +716,57 @@ export default function App() {
             <div className="block absolute left-1/2 top-0 bottom-0 w-8 -translate-x-1/2 z-30 pointer-events-none book-spine-gutter shadow-2xl" />
 
             {/* RIGHT PAGE: AUTHENTIC PRINTED STORY READING PAGE */}
-            <div className="col-span-6 parchment-page rounded-r-3xl rounded-l-none border-y-4 border-r-8 border-l-2 border-amber-700 p-3 md:p-4 shadow-2xl flex flex-col justify-between gap-3 relative select-none book-paper-stack-right overflow-y-auto">
+            <div className="col-span-6 parchment-page book-page-curve-right book-paper-stack-right rounded-r-2xl md:rounded-r-3xl rounded-l-none border-y-4 border-r-6 border-l-0 border-amber-800/80 p-2.5 md:p-3.5 shadow-2xl flex flex-col justify-between gap-2 relative select-none overflow-y-auto">
 
-              {/* COMPACT CHAPTER & SPEAKER HEADER */}
-              <div className="flex items-center justify-between pb-1 font-['Fredoka',sans-serif]">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-950 bg-amber-200 px-2.5 py-1 rounded-full shadow-sm shrink-0 flex items-center gap-1">
-                    📖 {currentSentence?.speaker === 'LILY' ? '🎀 Lily Doll' : currentSentence?.speaker === 'GIRL' ? '👧 Little Girl' : currentSentence?.speaker === 'RABBIT' ? '🐰 Teacup Rabbit' : currentSentence?.speaker === 'MILO' ? '🦊 Milo' : currentSentence?.speaker === 'TOBY' ? '🐰 Toby' : currentSentence?.speaker === 'ROCKY' ? '🚀 Rocky' : currentSentence?.speaker === 'COMET' ? '☄️ Starry' : currentSentence?.speaker === 'BENNY' ? '🐻 Benny Bear' : currentSentence?.speaker === 'BOTTLE' ? '💧 Buddy' : currentSentence?.speaker === 'AARAV' ? '👦 Aarav' : 'NARRATOR'}
-                  </span>
-                  <h2 className="text-sm font-bold text-slate-800 tracking-tight truncate">
-                    {currentScene.title}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <button
-                    onClick={() => {
-                      soundFX.playPop();
-                      setShowQuizModal(true);
-                    }}
-                    className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-purple-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                    title="Take the Story Comprehension Quiz"
-                  >
-                    <span>💡 Quiz</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      soundFX.playSparkle();
-                      setShowCareCertificateModal(true);
-                    }}
-                    className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-300 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                    title="Print your Kindness & Reading Award Certificate"
-                  >
-                    <span>🏆 Award</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      soundFX.playPop();
-                      setShowStoryArcModal(true);
-                    }}
-                    className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-indigo-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                    title="View Dynamic Emotional Narrative Arc"
-                  >
-                    <span>📈 Arc</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      soundFX.playPop();
-                      setShowVoiceRecorder(prev => !prev);
-                    }}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer ${
-                      showVoiceRecorder
-                        ? 'bg-rose-500 text-white border-rose-600'
-                        : 'bg-rose-100 hover:bg-rose-200 text-rose-700 border-rose-200'
-                    }`}
-                    title="Record and play back your reading voice!"
-                  >
-                    <span>🎙️ Record</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      soundFX.playPop();
-                      setShowPuppetStageModal(true);
-                    }}
-                    className="bg-pink-100 hover:bg-pink-200 text-pink-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                    title="Open Puppet Theater & Sticker Studio"
-                  >
-                    <span>🎭 Puppet</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      soundFX.playSparkle();
-                      setShowReadingPassportModal(true);
-                    }}
-                    className="bg-teal-100 hover:bg-teal-200 text-teal-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-teal-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
-                    title="View Reading Passport & Visas"
-                  >
-                    <span>📓 Passport</span>
-                  </button>
-                  <span className="text-[11px] font-bold text-amber-950 shrink-0 ml-1">
-                    Line {safeSentenceIndex + 1}/{currentSentences.length}
-                  </span>
-                  <button className="bg-sky-100 p-1.5 rounded-full text-sky-600 hover:bg-sky-200 shadow-sm border border-sky-200" onClick={() => {
-                    if (currentSentence && narratorEnabled) narrator.speakSentence(currentSentence);
-                  }}>
-                    <Volume2 className="w-3.5 h-3.5" />
-                  </button>
+              {/* STORY HEADER: Story Name is BIGGEST */}
+              <div className="sticky top-0 z-20 bg-[#fffdf7]/95 backdrop-blur-xs border-b-2 border-amber-300/80 pb-2 mb-1.5 font-['Fredoka',sans-serif] -mx-2.5 md:-mx-3.5 px-2.5 md:px-3.5 pt-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    {/* 🌟 STORY TITLE: Dominant, Largest Header */}
+                    <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-[#5c2800] tracking-tight leading-tight flex items-center gap-2 drop-shadow-2xs">
+                      <span className="shrink-0 text-xl sm:text-2xl drop-shadow-sm">
+                        {activeStoryId === 'dolly-midnight-adventure' ? '🎀' :
+                         activeStoryId === 'secret-cave' ? '🦊' :
+                         activeStoryId === 'curious-rocket' ? '🚀' :
+                         activeStoryId === 'bear-lost-pencil' ? '🐻' : '💧'}
+                      </span>
+                      <span className="truncate">
+                        {activeStoryObj?.title || "The Bottle That Waited"}
+                      </span>
+                    </h1>
+
+                    {/* Sub-header row: Chapter info + Speaker badge */}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-xs sm:text-sm font-bold text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300/80 shadow-2xs">
+                        Chapter {currentSceneId}: {currentScene.title}
+                      </span>
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-950 bg-amber-200/90 px-2.5 py-0.5 rounded-full shadow-2xs border border-amber-300/60 flex items-center gap-1">
+                        {currentSentence?.speaker === 'LILY' ? '🎀 Lily Doll' : currentSentence?.speaker === 'GIRL' ? '👧 Little Girl' : currentSentence?.speaker === 'RABBIT' ? '🐰 Teacup Rabbit' : currentSentence?.speaker === 'MILO' ? '🦊 Milo' : currentSentence?.speaker === 'TOBY' ? '🐰 Toby' : currentSentence?.speaker === 'ROCKY' ? '🚀 Rocky' : currentSentence?.speaker === 'COMET' ? '☄️ Starry' : currentSentence?.speaker === 'BENNY' ? '🐻 Benny Bear' : currentSentence?.speaker === 'BOTTLE' ? '💧 Buddy' : currentSentence?.speaker === 'AARAV' ? '👦 Aarav' : '📖 Narrator'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Reading Tools Group */}
+                  <div className="flex items-center gap-2 shrink-0 pt-0.5 flex-wrap justify-end">
+                    <button
+                      onClick={() => {
+                        soundFX.playPop();
+                        setShowStoryArcModal(true);
+                      }}
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold border border-indigo-200 flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer"
+                      title="View Dynamic Emotional Narrative Arc"
+                    >
+                      <span>📈 Arc</span>
+                    </button>
+                    <span className="text-[10px] md:text-xs font-bold text-amber-950 shrink-0 bg-amber-100/90 px-2.5 py-1 rounded-full border border-amber-200/80 shadow-2xs">
+                      Line {safeSentenceIndex + 1}/{currentSentences.length}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* FULL PRINTED STORYBOOK CHAPTER TEXT BLOCK */}
-              <div className="flex flex-col gap-2 font-['Fredoka',sans-serif] px-1">
+              <div className="flex flex-col gap-1.5 font-['Fredoka',sans-serif] px-1">
                 {currentSentences.map((sent, idx) => {
                   const isCurrent = idx === safeSentenceIndex;
                   return (
@@ -663,8 +774,8 @@ export default function App() {
                       key={sent.id || idx}
                       onClick={() => setCurrentSentenceIndex(idx)}
                       className={`cursor-pointer transition-all leading-snug ${isCurrent
-                          ? 'text-lg font-bold text-slate-900'
-                          : 'text-sm font-semibold text-slate-500 hover:text-slate-700'
+                          ? 'text-sm md:text-base font-bold text-slate-900 bg-amber-50/60 rounded-lg px-2 py-1 border border-amber-200/50'
+                          : 'text-xs md:text-sm font-semibold text-slate-500 hover:text-slate-700 px-2 py-0.5'
                         }`}
                     >
                       "{renderInteractiveText(sent.text)}"
@@ -673,24 +784,10 @@ export default function App() {
                 })}
               </div>
 
-              {/* FULL CHAPTER NARRATION SUMMARY */}
-              {currentScene.narration && (
-                <div className="bg-pink-100 border border-pink-200 p-3 rounded-2xl flex flex-col gap-1.5 shadow-sm mt-1 mb-1">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-pink-500 text-white p-1 rounded-lg">
-                      <BookOpen className="w-3 h-3" />
-                    </div>
-                    <span className="text-xs font-bold text-rose-600">Chapter Summary</span>
-                  </div>
-                  <p className="text-[11.5px] font-semibold text-slate-700 leading-relaxed">
-                    {renderInteractiveText(currentScene.narration)}
-                  </p>
-                </div>
-              )}
-
               {/* SELECTIVE INTERACTIVE REFLECTION PANEL FOR CURRENT SCENE */}
               <InteractivePanel
                 scene={currentScene}
+                activeStoryId={activeStoryId}
                 selectedQuizAnswer={selectedQuizAnswers[currentSceneId]}
                 waterStep={waterStep}
                 checklistState={checklistState}
@@ -700,15 +797,8 @@ export default function App() {
                 onChecklistToggle={handleChecklistToggle}
               />
 
-              {/* INTERACTIVE VOICE RECORD & PLAYBACK WIDGET */}
-              {showVoiceRecorder && (
-                <div className="mb-2 animate-fadeIn">
-                  <VoiceRecorderWidget currentSentenceText={currentSentence?.text} />
-                </div>
-              )}
-
               {/* INTEGRATED PAGE TURN NAVIGATION CONTROLS */}
-              <div className="pt-1 mt-auto font-['Fredoka',sans-serif]">
+              <div className="sticky bottom-0 z-20 bg-[#fffdf7]/95 backdrop-blur-xs pt-1.5 -mx-2.5 md:-mx-3.5 px-2.5 md:px-3.5 pb-1 mt-auto font-['Fredoka',sans-serif] border-t border-amber-200/60">
                 <SceneControls
                   currentSceneId={currentSceneId}
                   totalScenes={currentStoryScenes.length}
@@ -716,11 +806,13 @@ export default function App() {
                   currentSentenceIndex={safeSentenceIndex}
                   totalSentences={currentSentences.length}
                   isAutoPlayActive={isAutoPlayActive}
+                  isPaused={isPaused}
                   onNextSentence={handleNextSentence}
                   onPrevSentence={handlePrevSentence}
                   onNextScene={handleNextScene}
                   onPrevScene={handlePrevScene}
                   onToggleAutoPlay={handleToggleAutoPlay}
+                  onPauseStory={handlePauseStory}
                   onReplayNarration={() => {
                     if (currentSentence && narratorEnabled) {
                       narrator.speakSentence(currentSentence);
@@ -745,6 +837,7 @@ export default function App() {
           <StoryChapterMap
             currentScene={currentScene}
             scenes={currentStoryScenes}
+            activeStoryId={activeStoryId}
             currentSentenceIndex={safeSentenceIndex}
             onSelectScene={(sceneId) => {
               narrator.cancel();
@@ -768,6 +861,7 @@ export default function App() {
         )}
         {showEaselModal && (
           <ColoringEaselModal
+            storyId={activeStoryId}
             onClose={() => setShowEaselModal(false)}
             onDrawingSaved={() => unlockBadge('little-artist')}
           />
@@ -780,6 +874,7 @@ export default function App() {
         )}
         {showMemoryGameModal && (
           <MemoryGameModal
+            storyId={activeStoryId}
             onClose={() => setShowMemoryGameModal(false)}
             onGameWon={() => unlockBadge('word-wizard')}
           />
@@ -802,13 +897,23 @@ export default function App() {
           <CareCertificateModal
             isOpen={showCareCertificateModal}
             onClose={() => setShowCareCertificateModal(false)}
+            storyId={activeStoryId}
             storyTitle={activeStoryObj.title}
+            isCompleted={completedStories.includes(activeStoryId)}
+            completedStories={completedStories}
+            onSelectStory={(sId) => handleSelectStory(sId)}
+            onContinueReading={(sId) => {
+              if (sId && sId !== activeStoryId) {
+                handleSelectStory(sId);
+              }
+            }}
           />
         )}
         {showSoundscapeModal && (
           <SoundscapeMixerModal
             isOpen={showSoundscapeModal}
             onClose={() => setShowSoundscapeModal(false)}
+            storyId={activeStoryId}
             onBadgeEarned={unlockBadge}
           />
         )}
@@ -816,6 +921,7 @@ export default function App() {
           <StickerStageModal
             isOpen={showPuppetStageModal}
             onClose={() => setShowPuppetStageModal(false)}
+            storyId={activeStoryId}
             onBadgeEarned={unlockBadge}
           />
         )}
@@ -833,6 +939,7 @@ export default function App() {
             onClose={() => setShowStoryArcModal(false)}
             currentScene={currentScene}
             scenes={currentStoryScenes}
+            activeStoryId={activeStoryId}
             currentSentenceIndex={safeSentenceIndex}
             onSelectSentence={setCurrentSentenceIndex}
             onSelectScene={(sId) => {
@@ -841,9 +948,6 @@ export default function App() {
             }}
           />
         )}
-
-        {/* Global Sound Lab Synthesizer Foley Widget */}
-        <SoundboardWidget onOpenSoundscapeMixer={() => setShowSoundscapeModal(true)} />
       </main>
     </div>
   );

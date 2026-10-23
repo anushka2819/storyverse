@@ -19,20 +19,39 @@ const STAMPS = ['🌟', '❤️', '🦊', '🐰', '🎀', '🚀', '🐻', '👑'
 
 const TEMPLATES = [
   { id: 'blank', label: '🎨 Blank Canvas', emoji: '✨' },
-  { id: 'fox', label: '🦊 Milo the Fox', emoji: '🦊' },
   { id: 'doll', label: '🎀 Lily Doll', emoji: '🎀' },
+  { id: 'fox', label: '🦊 Milo the Fox', emoji: '🦊' },
   { id: 'rocket', label: '🚀 Rocky Rocket', emoji: '🚀' },
+  { id: 'bear', label: '🐻 Benny Bear', emoji: '🐻' },
   { id: 'bottle', label: '💧 Buddy Bottle', emoji: '💧' }
 ];
 
-export default function ColoringEaselModal({ onClose, onDrawingSaved = () => {} }) {
+export default function ColoringEaselModal({ onClose, storyId = null, onDrawingSaved = () => {} }) {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#3b82f6');
   const [brushSize, setBrushSize] = useState(12);
   const [tool, setTool] = useState('brush'); // 'brush' | 'eraser' | 'stamp'
   const [selectedStamp, setSelectedStamp] = useState('🌟');
-  const [template, setTemplate] = useState('blank');
+
+  const getDefaultTemplate = (sId) => {
+    switch (sId) {
+      case 'dolly-midnight-adventure': return 'doll';
+      case 'secret-cave': return 'fox';
+      case 'curious-rocket': return 'rocket';
+      case 'bear-lost-pencil': return 'bear';
+      case 'bottle-that-waited': return 'bottle';
+      default: return 'blank';
+    }
+  };
+
+  const [template, setTemplate] = useState(() => getDefaultTemplate(storyId));
+
+  useEffect(() => {
+    if (storyId) {
+      setTemplate(getDefaultTemplate(storyId));
+    }
+  }, [storyId]);
 
   // Initialize Canvas
   useEffect(() => {
@@ -70,6 +89,49 @@ export default function ColoringEaselModal({ onClose, onDrawingSaved = () => {} 
       ctx.arc(w * 0.58, h * 0.5, 8, 0, Math.PI * 2);
       ctx.arc(w * 0.5, h * 0.6, 12, 0, Math.PI * 2);
       ctx.fill();
+    } else if (templateId === 'bear') {
+      // Benny Bear cute head and round ears outline
+      ctx.beginPath();
+      ctx.arc(w * 0.3, h * 0.32, w * 0.1, 0, Math.PI * 2); // Left ear
+      ctx.arc(w * 0.7, h * 0.32, w * 0.1, 0, Math.PI * 2); // Right ear
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(w * 0.5, h * 0.52, w * 0.26, 0, Math.PI * 2); // Head
+      ctx.stroke();
+      // Eyes & Snout
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.arc(w * 0.42, h * 0.48, 8, 0, Math.PI * 2);
+      ctx.arc(w * 0.58, h * 0.48, 8, 0, Math.PI * 2);
+      ctx.arc(w * 0.5, h * 0.58, 14, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (templateId === 'doll') {
+      // Lily Doll head & cute hair ribbon outline
+      ctx.beginPath();
+      ctx.arc(w * 0.5, h * 0.52, w * 0.24, 0, Math.PI * 2); // Face
+      ctx.stroke();
+      // Hair Ribbon / Bow
+      ctx.beginPath();
+      ctx.arc(w * 0.5, h * 0.26, 10, 0, Math.PI * 2);
+      ctx.moveTo(w * 0.5, h * 0.26);
+      ctx.lineTo(w * 0.38, h * 0.2);
+      ctx.lineTo(w * 0.38, h * 0.32);
+      ctx.closePath();
+      ctx.moveTo(w * 0.5, h * 0.26);
+      ctx.lineTo(w * 0.62, h * 0.2);
+      ctx.lineTo(w * 0.62, h * 0.32);
+      ctx.closePath();
+      ctx.stroke();
+      // Button Eyes
+      ctx.fillStyle = '#db2777';
+      ctx.beginPath();
+      ctx.arc(w * 0.42, h * 0.5, 7, 0, Math.PI * 2);
+      ctx.arc(w * 0.58, h * 0.5, 7, 0, Math.PI * 2);
+      ctx.fill();
+      // Smile
+      ctx.beginPath();
+      ctx.arc(w * 0.5, h * 0.58, 14, 0, Math.PI);
+      ctx.stroke();
     } else if (templateId === 'rocket') {
       // Rocket outline
       ctx.beginPath();

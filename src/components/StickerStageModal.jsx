@@ -28,16 +28,70 @@ const PUPPET_CATALOG = [
   { id: 'speech', name: 'Speech Bubble', emoji: '💬', type: 'bubble', defaultText: 'Hello Friends! ✨' }
 ];
 
-export default function StickerStageModal({ isOpen, onClose, onBadgeEarned }) {
-  const [selectedBackdrop, setSelectedBackdrop] = useState(STAGE_BACKDROPS[0]);
-  const [stagePuppets, setStagePuppets] = useState([
-    { instanceId: 1, id: 'dolly', emoji: '🎀', name: 'Dolly', x: 28, y: 55, scale: 1.2, flipped: false, isDancing: false },
-    { instanceId: 2, id: 'bottle', emoji: '💧', name: 'Buddy', x: 65, y: 58, scale: 1.2, flipped: true, isDancing: false },
-    { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 42, y: 22, scale: 1, flipped: false, isDancing: false, text: "Let's go on an adventure! ✨" }
-  ]);
+export default function StickerStageModal({ isOpen, onClose, storyId = null, onBadgeEarned }) {
+  const getInitialSetup = (sId) => {
+    switch (sId) {
+      case 'dolly-midnight-adventure':
+        return {
+          backdrop: STAGE_BACKDROPS.find(b => b.id === 'bedroom') || STAGE_BACKDROPS[0],
+          puppets: [
+            { instanceId: 1, id: 'dolly', emoji: '🎀', name: 'Lily Doll', x: 30, y: 55, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 2, id: 'toby', emoji: '🐰', name: 'Teacup Bunny', x: 65, y: 58, scale: 1.1, flipped: true, isDancing: false },
+            { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 40, y: 22, scale: 1, flipped: false, isDancing: false, text: "Time for Adventure Night! ✨" }
+          ]
+        };
+      case 'secret-cave':
+        return {
+          backdrop: STAGE_BACKDROPS.find(b => b.id === 'forest') || STAGE_BACKDROPS[1],
+          puppets: [
+            { instanceId: 1, id: 'milo', emoji: '🦊', name: 'Milo Fox', x: 30, y: 55, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 2, id: 'toby', emoji: '🐰', name: 'Toby Rabbit', x: 65, y: 58, scale: 1.1, flipped: true, isDancing: false },
+            { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 42, y: 22, scale: 1, flipped: false, isDancing: false, text: "True friends explore together! 🌲" }
+          ]
+        };
+      case 'curious-rocket':
+        return {
+          backdrop: STAGE_BACKDROPS.find(b => b.id === 'space') || STAGE_BACKDROPS[2],
+          puppets: [
+            { instanceId: 1, id: 'rocky', emoji: '🚀', name: 'Rocky Rocket', x: 32, y: 52, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 2, id: 'star', emoji: '⭐', name: 'Lucky Star', x: 68, y: 45, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 40, y: 22, scale: 1, flipped: false, isDancing: false, text: "3, 2, 1... Blast off! 🚀⭐" }
+          ]
+        };
+      case 'bear-lost-pencil':
+        return {
+          backdrop: STAGE_BACKDROPS.find(b => b.id === 'forest') || STAGE_BACKDROPS[1],
+          puppets: [
+            { instanceId: 1, id: 'benny', emoji: '🐻', name: 'Benny Bear', x: 32, y: 55, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 2, id: 'rainbow', emoji: '🌈', name: 'Rainbow Arc', x: 68, y: 48, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 40, y: 22, scale: 1, flipped: false, isDancing: false, text: "Let's draw rainbow doodles! 🎨" }
+          ]
+        };
+      default:
+        return {
+          backdrop: STAGE_BACKDROPS.find(b => b.id === 'classroom') || STAGE_BACKDROPS[3],
+          puppets: [
+            { instanceId: 1, id: 'bottle', emoji: '💧', name: 'Buddy Bottle', x: 32, y: 55, scale: 1.2, flipped: false, isDancing: false },
+            { instanceId: 2, id: 'aarav', emoji: '👦', name: 'Aarav', x: 65, y: 58, scale: 1.2, flipped: true, isDancing: false },
+            { instanceId: 3, id: 'speech', emoji: '💬', name: 'Speech', x: 42, y: 22, scale: 1, flipped: false, isDancing: false, text: "Take care of everyday helpers! 💧" }
+          ]
+        };
+    }
+  };
+
+  const initialSetup = getInitialSetup(storyId);
+  const [selectedBackdrop, setSelectedBackdrop] = useState(initialSetup.backdrop);
+  const [stagePuppets, setStagePuppets] = useState(initialSetup.puppets);
   const [selectedPuppetId, setSelectedPuppetId] = useState(1);
   const [isPlayingShow, setIsPlayingShow] = useState(false);
   const stageRef = useRef(null);
+
+  useEffect(() => {
+    const setup = getInitialSetup(storyId);
+    setSelectedBackdrop(setup.backdrop);
+    setStagePuppets(setup.puppets);
+    setSelectedPuppetId(1);
+  }, [storyId]);
 
   if (!isOpen) return null;
 

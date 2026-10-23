@@ -85,6 +85,25 @@ export default function StorybookFrame({
 
   const speaker = currentSentence?.speaker || 'NARRATOR';
 
+  const getSpeakerInfo = (spk) => {
+    switch (spk) {
+      case 'LILY': return { icon: '🎀', name: 'Lily the Doll' };
+      case 'GIRL': return { icon: '👧', name: 'Little Girl' };
+      case 'RABBIT': return { icon: '🐰', name: 'Teacup Rabbit' };
+      case 'MILO': return { icon: '🦊', name: 'Milo the Fox' };
+      case 'TOBY': return { icon: '🐰', name: 'Toby the Rabbit' };
+      case 'ROCKY': return { icon: '🚀', name: 'Rocky Rocket' };
+      case 'COMET': return { icon: '☄️', name: 'Starry Comet' };
+      case 'BENNY': return { icon: '🐻', name: 'Benny Bear' };
+      case 'BOTTLE': return { icon: '💧', name: 'Buddy Bottle' };
+      case 'AARAV': return { icon: '👦', name: 'Aarav' };
+      case 'SFX': return { icon: '🔔', name: 'Sound Effect' };
+      default: return { icon: '📖', name: 'Narrator' };
+    }
+  };
+
+  const speakerInfo = getSpeakerInfo(speaker);
+
   return (
     <div
       className={`relative w-full h-full min-h-0 transition-all duration-500 select-none ${isFullscreen
@@ -95,14 +114,22 @@ export default function StorybookFrame({
       {/* PARCHMENT STORYBOOK LEFT PAGE */}
       <div className="relative w-full h-full rounded-l-2xl rounded-r-sm parchment-page border-l-2 border-y border-amber-200/80 shadow-inner overflow-hidden flex flex-col justify-between">
 
-        {/* STORYBOOK TOP HEADER & BOOKMARK */}
-        <div className="absolute top-0 inset-x-0 z-40 bg-gradient-to-b from-[#fffdf8]/95 via-[#fffdf8]/80 to-transparent px-4 py-2.5 flex items-center justify-between pointer-events-auto border-b border-amber-300/40">
+        {/* STORYBOOK TOP HEADER & BOOKMARK: Story Title BIGGEST */}
+        <div className="absolute top-0 inset-x-0 z-40 bg-gradient-to-b from-[#fffdf8]/95 via-[#fffdf8]/80 to-transparent px-3 py-2 flex items-center justify-between pointer-events-auto border-b border-amber-300/40">
           <div className="flex items-center gap-2">
-            <Bookmark className="w-5 h-5 text-amber-600 fill-amber-500 drop-shadow-sm animate-bounce" />
-            <span className="bg-amber-100/90 text-amber-950 font-['Fredoka',sans-serif] font-black px-3.5 py-1 rounded-full text-xs flex items-center gap-1.5 border border-amber-300 shadow-sm tracking-wide">
-              <BookOpen className="w-4 h-4 text-amber-700" />
-              <span>CHAPTER {scene.id} • {scene.title}</span>
-            </span>
+            <Bookmark className="w-5 h-5 text-amber-600 fill-amber-500 drop-shadow-sm animate-bounce shrink-0" />
+            <div className="flex flex-col">
+              <span className="text-base sm:text-lg md:text-xl font-black text-[#5c2800] font-['Fredoka',sans-serif] leading-tight drop-shadow-2xs">
+                {activeStoryId === 'dolly-midnight-adventure' ? "Dolly's Midnight Adventure" :
+                 activeStoryId === 'secret-cave' ? "The Secret Cave" :
+                 activeStoryId === 'curious-rocket' ? "The Little Rocket's Big Wish" :
+                 activeStoryId === 'bear-lost-pencil' ? "Benny Bear & The Magic Pencil" :
+                 "The Bottle That Waited"}
+              </span>
+              <span className="text-[11px] sm:text-xs md:text-sm font-bold text-amber-900/90">
+                Chapter {scene.id}: {scene.title}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -144,6 +171,15 @@ export default function StorybookFrame({
                     <span className="text-[10px] font-black uppercase tracking-wider text-rose-800 block mb-0.5">🚀 Rocky Rocket</span>
                     <p className="text-xs font-bold leading-snug text-slate-800">"{currentSentence.text}"</p>
                     <div className="absolute -bottom-3 left-10 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-rose-500" />
+                  </div>
+                )}
+
+                {/* SPEECH BUBBLE FOR STARRY COMET */}
+                {speaker === 'COMET' && currentSentence && (
+                  <div className="absolute top-14 right-6 z-40 bg-[#fffdfa] text-slate-900 border-3 border-cyan-400 p-3 rounded-2xl shadow-2xl w-60 animate-bounce font-['Fredoka',sans-serif]">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-cyan-700 block mb-0.5">☄️ Starry Comet</span>
+                    <p className="text-xs font-bold leading-snug text-slate-800">"{currentSentence.text}"</p>
+                    <div className="absolute -bottom-3 right-10 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-cyan-400" />
                   </div>
                 )}
               </div>
@@ -220,8 +256,8 @@ export default function StorybookFrame({
                 ) : (
                   /* Bedroom Night / Sunrise View */
                   <div className={`absolute inset-0 transition-all duration-700 ${scene.background === 'bedroom-sunrise'
-                      ? 'bg-gradient-to-b from-amber-200 via-rose-100 to-amber-100'
-                      : 'bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900'
+                    ? 'bg-gradient-to-b from-amber-200 via-rose-100 to-amber-100'
+                    : 'bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900'
                     } flex flex-col justify-between p-4`}>
                     {/* Moon or Sun */}
                     <div className="absolute top-4 right-6 pointer-events-none">
@@ -354,7 +390,8 @@ export default function StorybookFrame({
                   </div>
                 )}
               </div>
-            ) : scene.background !== 'water-station' ? (
+            ) : activeStoryId === 'bottle-that-waited' ? (
+              scene.background !== 'water-station' ? (
               <div
                 onClick={() => onTapObject('bottle')}
                 className={`absolute inset-0 cursor-pointer transition-transform duration-700 ease-out origin-center ${getCameraTransform()}`}
@@ -480,10 +517,17 @@ export default function StorybookFrame({
                   <span className="text-xs font-black text-sky-900 mt-2 font-serif">3. Close Cap</span>
                 </div>
               </div>
+            )
+            ) : (
+              /* Safe Story Stage Fallback */
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-slate-900 to-purple-950 flex flex-col justify-center items-center p-4">
+                <span className="text-6xl animate-bounce">✨</span>
+                <span className="text-base font-bold text-amber-200 mt-2">{scene.title}</span>
+              </div>
             )}
 
-            {/* CHALKBOARD DRAWING EASEL OVERLAY */}
-            {scene.background !== 'water-station' && (
+            {/* CHALKBOARD DRAWING EASEL OVERLAY (Only for classroom story) */}
+            {activeStoryId === 'bottle-that-waited' && scene.background !== 'water-station' && (
               <div className="absolute top-3 right-3 w-48 sm:w-56 h-20 sm:h-24 z-20">
                 {!showChalkboardDrawer ? (
                   <div
@@ -534,10 +578,10 @@ export default function StorybookFrame({
               <div className="absolute bottom-2 inset-x-3 z-40 bg-sky-950/90 border-2 border-amber-300 p-2 md:p-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center justify-between gap-2.5 animate-fade-in pointer-events-none font-['Fredoka',sans-serif]">
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-base animate-bounce">
-                    {speaker === 'BOTTLE' ? '💧' : speaker === 'AARAV' ? '👦' : '🎙️'}
+                    {speakerInfo.icon}
                   </span>
                   <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-amber-950 bg-amber-300 px-2 py-0.5 rounded-md border border-amber-400 shadow-2xs">
-                    {speaker === 'BOTTLE' ? 'Buddy' : speaker === 'AARAV' ? 'Aarav' : 'Narrator'}
+                    {speakerInfo.name}
                   </span>
                 </div>
 

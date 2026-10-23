@@ -1,4 +1,14 @@
-// Optimized Fast Web SpeechSynthesis Service with Chrome Garbage-Collection Fix & Fallback Safety
+// Helper to strip all Unicode emojis, pictographs, symbols, and dingbats
+export function stripEmojisForTTS(text) {
+  if (!text) return '';
+  return text
+    // Strip extended pictographics, emoji presentation, symbols, dingbats, arrows, and variation selectors
+    .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B50}-\u{2B55}\u{FE00}-\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}]/gu, '')
+    // Clean up multiple spaces and spaces before punctuation
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([.,!?;:])/g, '$1')
+    .trim();
+}
 
 class NarratorService {
   constructor() {
@@ -39,15 +49,23 @@ class NarratorService {
       return;
     }
 
-    // Clean text by stripping technical prefixes (SFX:, NARRATOR:, AARAV:, BOTTLE:, etc.) and brackets
-    const cleanText = text
+    // 1. Clean text by stripping technical prefixes and brackets
+    let cleanText = text
       .replace(/^SFX:\s*/gi, '')
       .replace(/^NARRATOR:\s*/gi, '')
       .replace(/^AARAV:\s*/gi, '')
       .replace(/^BOTTLE:\s*/gi, '')
+      .replace(/^LILY:\s*/gi, '')
+      .replace(/^ROCKY:\s*/gi, '')
+      .replace(/^BENNY:\s*/gi, '')
+      .replace(/^MILO:\s*/gi, '')
+      .replace(/^TOBY:\s*/gi, '')
       .replace(/^HAPPY MEMORY:\s*/gi, '')
       .replace(/\[[^]*?\]/g, '')
       .trim();
+
+    // 2. Strip all emojis so browser speech synthesis does not pronounce emoji names (e.g., "sparkle", "droplet", "star")
+    cleanText = stripEmojisForTTS(cleanText);
 
     if (!cleanText) {
       if (onEndCallback) onEndCallback();
@@ -74,10 +92,13 @@ class NarratorService {
 
     let hasEnded = false;
     const handleEnd = () => {
-      if (hasEnded) return;
+      if (hasEnded || this.isPaused) return;
       hasEnded = true;
       this.speaking = false;
-      if (this.fallbackTimeout) clearTimeout(this.fallbackTimeout);
+      if (this.fallbackTimeout) {
+        clearTimeout(this.fallbackTimeout);
+        this.fallbackTimeout = null;
+      }
       if (onEndCallback) onEndCallback();
     };
 
@@ -91,7 +112,7 @@ class NarratorService {
     }, estimatedDurationMs);
 
     setTimeout(() => {
-      if (this.synth && this.isEnabled) {
+      if (this.synth && this.isEnabled && !this.isPaused) {
         try {
           this.synth.speak(utterance);
         } catch (e) {
@@ -104,6 +125,7 @@ class NarratorService {
   }
 
   speakSentence(sentenceObj, onEndCallback = null) {
+    if (this.isPaused) return;
     if (!sentenceObj) {
       if (onEndCallback) onEndCallback();
       return;
@@ -112,9 +134,14 @@ class NarratorService {
   }
 
   cancel() {
+    this.isPaused = false;
     if (this.fallbackTimeout) {
       clearTimeout(this.fallbackTimeout);
       this.fallbackTimeout = null;
+    }
+    if (this.activeUtterance) {
+      this.activeUtterance.onend = null;
+      this.activeUtterance.onerror = null;
     }
     if (this.synth) {
       try {
@@ -123,6 +150,29 @@ class NarratorService {
       this.speaking = false;
     }
     this.activeUtterance = null;
+  }
+
+  pause() {
+    this.isPaused = true;
+    if (this.fallbackTimeout) {
+      clearTimeout(this.fallbackTimeout);
+      this.fallbackTimeout = null;
+    }
+    if (this.activeUtterance) {
+      this.activeUtterance.onend = null;
+      this.activeUtterance.onerror = null;
+    }
+    if (this.synth) {
+      try {
+        this.synth.cancel();
+      } catch (e) {}
+      this.speaking = false;
+    }
+    this.activeUtterance = null;
+  }
+
+  resume() {
+    this.isPaused = false;
   }
 
   toggleEnabled() {

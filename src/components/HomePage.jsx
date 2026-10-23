@@ -5,6 +5,7 @@ import { soundFX } from '../services/soundEffects';
 
 export default function HomePage({
   onSelectStory = () => { },
+  completedStories = [],
   onOpenBadges = () => { },
   onOpenEasel = () => { },
   onOpenMemoryGame = () => { },
@@ -538,9 +539,15 @@ export default function HomePage({
               </div>
               <div>
                 <h3 className="text-base font-black text-slate-800">Care Certificate</h3>
-                <p className="text-xs text-slate-500 mt-1">Customize and print your official Kindness & Reading Champion award!</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {completedStories && completedStories.length > 0
+                    ? `Earned for completing ${completedStories.length} storybook adventure${completedStories.length > 1 ? 's' : ''}!`
+                    : 'Awarded when you properly read and complete a storybook adventure!'}
+                </p>
               </div>
-              <span className="text-xs font-bold text-amber-500 mt-auto flex items-center gap-1">Print Award →</span>
+              <span className="text-xs font-bold text-amber-500 mt-auto flex items-center gap-1">
+                {completedStories && completedStories.length > 0 ? 'View Award 🏆 →' : '🔒 Read Story to Unlock →'}
+              </span>
             </div>
           </div>
         </section>

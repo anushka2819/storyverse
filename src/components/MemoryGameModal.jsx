@@ -2,16 +2,60 @@ import React, { useState, useEffect } from 'react';
 import { X, RotateCcw, Sparkles, Trophy, Star } from 'lucide-react';
 import { soundFX } from '../services/soundEffects';
 
-const CARD_ITEMS = [
+const STORY_CARDS = {
+  'dolly-midnight-adventure': [
+    { id: 'doll', emoji: '🎀', label: 'Lily Doll' },
+    { id: 'key', emoji: '🗝️', label: 'Golden Key' },
+    { id: 'door', emoji: '🚪', label: 'Glowing Door' },
+    { id: 'bunny', emoji: '🐰', label: 'Teacup Bunny' },
+    { id: 'boat', emoji: '⛵', label: 'Toy Boat' },
+    { id: 'castle', emoji: '🏰', label: 'Lost Toys Castle' }
+  ],
+  'secret-cave': [
+    { id: 'milo', emoji: '🦊', label: 'Milo Fox' },
+    { id: 'toby', emoji: '🐰', label: 'Toby Rabbit' },
+    { id: 'arrow', emoji: '🧭', label: 'Golden Arrow' },
+    { id: 'tree', emoji: '🌲', label: 'Giant Oak' },
+    { id: 'crystal', emoji: '💎', label: 'Cave Crystal' },
+    { id: 'lake', emoji: '🌊', label: 'Glowing Lake' }
+  ],
+  'curious-rocket': [
+    { id: 'rocket', emoji: '🚀', label: 'Rocky Rocket' },
+    { id: 'starry', emoji: '☄️', label: 'Starry Comet' },
+    { id: 'stars', emoji: '⭐', label: 'Twinkling Stars' },
+    { id: 'moon', emoji: '🌙', label: 'Friendly Moon' },
+    { id: 'planet', emoji: '🪐', label: 'Ringed Planet' },
+    { id: 'galaxy', emoji: '🌌', label: 'Cosmic Galaxy' }
+  ],
+  'bear-lost-pencil': [
+    { id: 'benny', emoji: '🐻', label: 'Benny Bear' },
+    { id: 'pencil', emoji: '✏️', label: 'Magic Pencil' },
+    { id: 'rainbow', emoji: '🌈', label: 'Rainbow Doodle' },
+    { id: 'squirrel', emoji: '🐿️', label: 'Penny Squirrel' },
+    { id: 'owl', emoji: '🦉', label: 'Oliver Owl' },
+    { id: 'art', emoji: '🎨', label: 'Forest Art' }
+  ],
+  'bottle-that-waited': [
+    { id: 'bottle', emoji: '💧', label: 'Buddy Bottle' },
+    { id: 'aarav', emoji: '👦', label: 'Aarav' },
+    { id: 'bag', emoji: '🎒', label: 'Schoolbag' },
+    { id: 'desk', emoji: '🏫', label: 'Classroom Desk' },
+    { id: 'tap', emoji: '🚰', label: 'Water Tap' },
+    { id: 'rocket_sticker', emoji: '🚀', label: 'Rocket Sticker' }
+  ]
+};
+
+const DEFAULT_CARDS = [
   { id: 'fox', emoji: '🦊', label: 'Milo Fox' },
   { id: 'rabbit', emoji: '🐰', label: 'Toby Rabbit' },
   { id: 'doll', emoji: '🎀', label: 'Lily Doll' },
   { id: 'rocket', emoji: '🚀', label: 'Rocky Rocket' },
   { id: 'bottle', emoji: '💧', label: 'Buddy Bottle' },
-  { id: 'key', emoji: '🗝️', label: 'Magic Key' }
+  { id: 'bear', emoji: '🐻', label: 'Benny Bear' }
 ];
 
-export default function MemoryGameModal({ onClose, onGameWon = () => {} }) {
+export default function MemoryGameModal({ onClose, storyId = null, onGameWon = () => {} }) {
+  const activeDeckItems = (storyId && STORY_CARDS[storyId]) ? STORY_CARDS[storyId] : DEFAULT_CARDS;
   const [cards, setCards] = useState([]);
   const [flippedIndices, setFlippedIndices] = useState([]);
   const [matchedIds, setMatchedIds] = useState([]);
@@ -21,11 +65,11 @@ export default function MemoryGameModal({ onClose, onGameWon = () => {} }) {
   // Initialize deck
   useEffect(() => {
     resetGame();
-  }, []);
+  }, [storyId]);
 
   const resetGame = () => {
     soundFX.playPop();
-    const deck = [...CARD_ITEMS, ...CARD_ITEMS]
+    const deck = [...activeDeckItems, ...activeDeckItems]
       .map((item, index) => ({
         ...item,
         uniqueId: index,
@@ -58,7 +102,7 @@ export default function MemoryGameModal({ onClose, onGameWon = () => {} }) {
         setMatchedIds(nextMatched);
         setFlippedIndices([]);
 
-        if (nextMatched.length === CARD_ITEMS.length) {
+        if (nextMatched.length === activeDeckItems.length) {
           soundFX.playStoryChime();
           setIsWon(true);
           onGameWon();

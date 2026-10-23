@@ -5,6 +5,7 @@ import { STORY_SCENES } from '../data/storyData';
 export default function StoryPlotChart({
   currentScene,
   scenes = STORY_SCENES,
+  activeStoryId = 'bottle-that-waited',
   currentSentenceIndex = 0,
   onSelectSentence = () => {},
   onSelectScene = () => {}
@@ -266,68 +267,190 @@ export default function StoryPlotChart({
         </div>
       </div>
 
-      {/* Dynamic Metric Gauges Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {/* Gauge 1: Bottle Emotion */}
-        <div className="bg-slate-800/90 border border-sky-500/30 p-3 rounded-2xl flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs font-extrabold text-sky-300">
-            <span className="flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-sky-400" />
-              <span>Bottle Emotion</span>
-            </span>
-            <span className="text-sky-200 font-black">{plotData.emotionScore}%</span>
-          </div>
-          <div className="w-full bg-slate-900 rounded-full h-3 border border-sky-500/20 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-sky-400 to-amber-400 transition-all duration-500 rounded-full"
-              style={{ width: `${plotData.emotionScore}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-slate-400 font-semibold">
-            {plotData.emotionScore >= 80 ? '😃 Happy & Loved' : plotData.emotionScore >= 40 ? '🥺 Hopeful / Waiting' : '💔 Lonely & Left Behind'}
-          </span>
-        </div>
+      {/* Dynamic Metric Gauges Bar Tailored to Active Story */}
+      {(() => {
+        const getGauges = () => {
+          switch (activeStoryId) {
+            case 'dolly-midnight-adventure':
+              return [
+                {
+                  title: "Lily's Adventure Spirit",
+                  icon: '🎀',
+                  value: plotData.emotionScore || 90,
+                  color: 'from-pink-400 to-rose-500',
+                  borderColor: 'border-pink-500/30',
+                  textColor: 'text-pink-300',
+                  status: (plotData.emotionScore || 90) >= 80 ? '✨ Full of Wonder & Courage' : '🧸 Careful Explorer'
+                },
+                {
+                  title: 'Midnight Magic Glow',
+                  icon: '✨',
+                  value: plotData.hydrationLevel || 95,
+                  color: 'from-purple-400 to-indigo-500',
+                  borderColor: 'border-purple-500/30',
+                  textColor: 'text-purple-300',
+                  status: (plotData.hydrationLevel || 95) >= 80 ? '🌟 Golden Key Glowing' : '🌙 Soft Moonlight'
+                },
+                {
+                  title: 'Secret Midnight Hour',
+                  icon: '🗝️',
+                  value: plotData.quietnessIndex || 25,
+                  color: 'from-amber-400 to-yellow-500',
+                  borderColor: 'border-amber-500/30',
+                  textColor: 'text-amber-300',
+                  status: (plotData.quietnessIndex || 25) >= 30 ? '🤫 Peaceful Midnight Room' : '🎈 Lost Toys Cheering'
+                }
+              ];
+            case 'secret-cave':
+              return [
+                {
+                  title: 'Milo & Toby Friendship',
+                  icon: '🦊',
+                  value: plotData.emotionScore || 95,
+                  color: 'from-amber-400 to-orange-500',
+                  borderColor: 'border-amber-500/30',
+                  textColor: 'text-amber-300',
+                  status: (plotData.emotionScore || 95) >= 80 ? '🤝 Inseparable Best Friends' : '🥺 Toby Needs Milo'
+                },
+                {
+                  title: 'Forest Trail Discovery',
+                  icon: '🌲',
+                  value: plotData.hydrationLevel || 95,
+                  color: 'from-emerald-400 to-teal-500',
+                  borderColor: 'border-emerald-500/30',
+                  textColor: 'text-emerald-300',
+                  status: (plotData.hydrationLevel || 95) >= 80 ? '🧭 Following Golden Arrow' : '⛰️ Steep Hill Climb'
+                },
+                {
+                  title: 'Cave Wonder Index',
+                  icon: '💎',
+                  value: plotData.quietnessIndex || 20,
+                  color: 'from-cyan-400 to-blue-500',
+                  borderColor: 'border-cyan-500/30',
+                  textColor: 'text-cyan-300',
+                  status: (plotData.quietnessIndex || 20) >= 30 ? '💎 Glowing Crystals Shimmer' : '🌿 Whispering Woods'
+                }
+              ];
+            case 'curious-rocket':
+              return [
+                {
+                  title: "Rocky's Rocket Bravery",
+                  icon: '🚀',
+                  value: plotData.emotionScore || 95,
+                  color: 'from-rose-400 to-red-500',
+                  borderColor: 'border-rose-500/30',
+                  textColor: 'text-rose-300',
+                  status: (plotData.emotionScore || 95) >= 80 ? '⭐ Super Brave Astronaut' : '🚀 Engine Countdown'
+                },
+                {
+                  title: 'Starlight Booster Power',
+                  icon: '🔥',
+                  value: plotData.hydrationLevel || 100,
+                  color: 'from-amber-400 to-orange-500',
+                  borderColor: 'border-amber-500/30',
+                  textColor: 'text-amber-300',
+                  status: (plotData.hydrationLevel || 100) >= 80 ? '🌌 Full Starlight Warp Speed' : '🪐 Cruising Around Rings'
+                },
+                {
+                  title: 'Cosmic Kindness Level',
+                  icon: '☄️',
+                  value: plotData.quietnessIndex !== undefined ? Math.max(10, 100 - plotData.quietnessIndex) : 85,
+                  color: 'from-cyan-400 to-indigo-500',
+                  borderColor: 'border-cyan-500/30',
+                  textColor: 'text-cyan-300',
+                  status: '💛 Helping Lost Comet Starry'
+                }
+              ];
+            case 'bear-lost-pencil':
+              return [
+                {
+                  title: "Benny's Creative Joy",
+                  icon: '🐻',
+                  value: plotData.emotionScore || 90,
+                  color: 'from-amber-400 to-yellow-500',
+                  borderColor: 'border-amber-500/30',
+                  textColor: 'text-amber-300',
+                  status: (plotData.emotionScore || 90) >= 80 ? '🎨 Radiant Rainbow Doodles' : '🤔 Wondering What to Draw'
+                },
+                {
+                  title: 'Golden Magic Pencil Sparks',
+                  icon: '✏️',
+                  value: plotData.hydrationLevel || 95,
+                  color: 'from-emerald-400 to-teal-500',
+                  borderColor: 'border-emerald-500/30',
+                  textColor: 'text-emerald-300',
+                  status: '✨ Golden Starry Trail'
+                },
+                {
+                  title: 'Sharing with Friends',
+                  icon: '🌈',
+                  value: plotData.quietnessIndex !== undefined ? Math.max(10, 100 - plotData.quietnessIndex) : 80,
+                  color: 'from-pink-400 to-purple-500',
+                  borderColor: 'border-pink-500/30',
+                  textColor: 'text-pink-300',
+                  status: '💖 Sharing with Squirrel & Owl'
+                }
+              ];
+            default:
+              return [
+                {
+                  title: 'Bottle Emotion',
+                  icon: '💧',
+                  value: plotData.emotionScore || 70,
+                  color: 'from-sky-400 to-amber-400',
+                  borderColor: 'border-sky-500/30',
+                  textColor: 'text-sky-300',
+                  status: (plotData.emotionScore || 70) >= 80 ? '😃 Happy & Loved' : (plotData.emotionScore || 70) >= 40 ? '🥺 Hopeful / Waiting' : '💔 Lonely & Left Behind'
+                },
+                {
+                  title: 'Hydration Level',
+                  icon: '🚰',
+                  value: plotData.hydrationLevel || 70,
+                  color: 'from-teal-400 to-emerald-400',
+                  borderColor: 'border-teal-500/30',
+                  textColor: 'text-teal-300',
+                  status: (plotData.hydrationLevel || 70) >= 80 ? '💧 Fully Hydrated' : (plotData.hydrationLevel || 70) >= 40 ? '💧 Half Full' : '🚰 Needs Water Refill!'
+                },
+                {
+                  title: 'Classroom Quietness',
+                  icon: '🏫',
+                  value: plotData.quietnessIndex || 20,
+                  color: 'from-purple-500 to-indigo-400',
+                  borderColor: 'border-purple-500/30',
+                  textColor: 'text-purple-300',
+                  status: (plotData.quietnessIndex || 20) >= 75 ? '🤫 Quiet Classroom' : (plotData.quietnessIndex || 20) >= 40 ? '👣 Footsteps in Hall' : '🔔 Busy School Day'
+                }
+              ];
+          }
+        };
 
-        {/* Gauge 2: Hydration Meter */}
-        <div className="bg-slate-800/90 border border-teal-500/30 p-3 rounded-2xl flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs font-extrabold text-teal-300">
-            <span className="flex items-center gap-1.5">
-              <Droplets className="w-4 h-4 text-teal-400" />
-              <span>Hydration Level</span>
-            </span>
-            <span className="text-teal-200 font-black">{plotData.hydrationLevel}%</span>
-          </div>
-          <div className="w-full bg-slate-900 rounded-full h-3 border border-teal-500/20 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 transition-all duration-500 rounded-full"
-              style={{ width: `${plotData.hydrationLevel}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-slate-400 font-semibold">
-            {plotData.hydrationLevel >= 80 ? '💧 Fully Hydrated' : plotData.hydrationLevel >= 40 ? '💧 Half Full' : '🚰 Needs Water Refill!'}
-          </span>
-        </div>
+        const gauges = getGauges();
 
-        {/* Gauge 3: Classroom Silence / Quietness Index */}
-        <div className="bg-slate-800/90 border border-purple-500/30 p-3 rounded-2xl flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs font-extrabold text-purple-300">
-            <span className="flex items-center gap-1.5">
-              <VolumeX className="w-4 h-4 text-purple-400" />
-              <span>Classroom Quietness</span>
-            </span>
-            <span className="text-purple-200 font-black">{plotData.quietnessIndex}%</span>
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {gauges.map((g, idx) => (
+              <div key={idx} className={`bg-slate-800/90 border ${g.borderColor} p-3 rounded-2xl flex flex-col gap-1.5`}>
+                <div className={`flex items-center justify-between text-xs font-extrabold ${g.textColor}`}>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-sm">{g.icon}</span>
+                    <span>{g.title}</span>
+                  </span>
+                  <span className="font-black">{g.value}%</span>
+                </div>
+                <div className="w-full bg-slate-900 rounded-full h-3 border border-slate-700 overflow-hidden">
+                  <div
+                    className={`h-full bg-gradient-to-r ${g.color} transition-all duration-500 rounded-full`}
+                    style={{ width: `${g.value}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 font-semibold truncate">
+                  {g.status}
+                </span>
+              </div>
+            ))}
           </div>
-          <div className="w-full bg-slate-900 rounded-full h-3 border border-purple-500/20 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 transition-all duration-500 rounded-full"
-              style={{ width: `${plotData.quietnessIndex}%` }}
-            />
-          </div>
-          <span className="text-[10px] text-slate-400 font-semibold">
-            {plotData.quietnessIndex >= 75 ? '🤫 Quiet Classroom' : plotData.quietnessIndex >= 40 ? '👣 Footsteps in Hall' : '🔔 Busy School Day'}
-          </span>
-        </div>
-      </div>
+        );
+      })()}
     </div>
   );
 }

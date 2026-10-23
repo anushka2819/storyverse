@@ -8,6 +8,7 @@ export default function StoryArcModal({
   onClose,
   currentScene,
   scenes,
+  activeStoryId = 'bottle-that-waited',
   currentSentenceIndex,
   onSelectSentence,
   onSelectScene
@@ -53,6 +54,7 @@ export default function StoryArcModal({
           <StoryPlotChart
             currentScene={currentScene}
             scenes={scenes}
+            activeStoryId={activeStoryId}
             currentSentenceIndex={currentSentenceIndex}
             onSelectSentence={onSelectSentence}
             onSelectScene={onSelectScene}
@@ -66,7 +68,7 @@ export default function StoryArcModal({
               1. Exposition
             </span>
             <p className="text-[11px] text-slate-300">
-              Introducing protagonists and daily routine (Chapters 1–2).
+              Introducing protagonists, character gear, and daily routine.
             </p>
           </div>
 
@@ -75,7 +77,7 @@ export default function StoryArcModal({
               2. Rising Action
             </span>
             <p className="text-[11px] text-slate-300">
-              The unexpected problem, separation, or lonely wait (Chapters 3–5).
+              The unexpected mystery, magical clue, or tough adventure challenge.
             </p>
           </div>
 
@@ -84,7 +86,7 @@ export default function StoryArcModal({
               3. Climax
             </span>
             <p className="text-[11px] text-slate-300">
-              The pivotal discovery, reunion, or bold choice (Chapters 6–7).
+              The pivotal discovery, courageous rescue, or heartfelt choice.
             </p>
           </div>
 
@@ -93,7 +95,7 @@ export default function StoryArcModal({
               4. Resolution
             </span>
             <p className="text-[11px] text-slate-300">
-              Care, hydration refill, and moral superpower earned (Chapters 8–10).
+              Triumph, friendship bond, and meaningful life lesson earned!
             </p>
           </div>
         </div>

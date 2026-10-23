@@ -1,8 +1,11 @@
-import React from 'react';
-import { Volume2, Sparkles, CheckCircle2, Search, Heart, Award, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Volume2, Sparkles, CheckCircle2, Search, Heart, Award, ShieldCheck, X } from 'lucide-react';
+import { soundFX } from '../services/soundEffects';
+import { narrator } from '../services/narratorService';
 
 export default function InteractivePanel({
   scene,
+  activeStoryId = 'bottle-that-waited',
   selectedQuizAnswer = null,
   waterStep = 0,
   checklistState = {},
@@ -11,14 +14,46 @@ export default function InteractivePanel({
   onObjectTap = () => { },
   onChecklistToggle = () => { }
 }) {
-  const [inspectedObject, setInspectedObject] = React.useState(null);
-  const [isRecording, setIsRecording] = React.useState(false);
+  const [inspectedObject, setInspectedObject] = useState(null);
+  const [popupObject, setPopupObject] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   if (!scene) return null;
 
+  const handleItemClick = (obj) => {
+    setInspectedObject(obj.id);
+    setPopupObject(obj);
+    if (obj.soundEffect === 'sparkle') {
+      soundFX.playSparkle();
+    } else {
+      soundFX.playPop();
+    }
+    onObjectTap(obj.id);
+  };
+
   const handleDeskItemClick = (objId) => {
-    setInspectedObject(objId);
-    onObjectTap(objId);
+    const found = scene.objects?.find(o => o.id === objId);
+    if (found) {
+      handleItemClick(found);
+    } else {
+      setInspectedObject(objId);
+      onObjectTap(objId);
+    }
+  };
+
+  const getStoryGearTitle = () => {
+    switch (activeStoryId) {
+      case 'dolly-midnight-adventure':
+        return "DOLLY'S MAGICAL GEAR ✨";
+      case 'secret-cave':
+        return "FOREST EXPLORER GEAR 🌲";
+      case 'curious-rocket':
+        return "ROCKY'S SPACE GEAR 🚀";
+      case 'bear-lost-pencil':
+        return "BENNY'S ART GEAR 🎨";
+      default:
+        return "CLASSROOM DESK EXPLORER 🏫";
+    }
   };
 
   return (
@@ -28,45 +63,28 @@ export default function InteractivePanel({
       {scene.id === 1 && (
         <div className="flex flex-col gap-3">
           
-          <div className="grid grid-cols-2 gap-2">
-            {/* Left Header: Desk Explorer */}
-            <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-2xl flex items-center gap-2 shadow-sm">
+          {/* Explorer Header */}
+          <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-2xl flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2">
               <div className="bg-emerald-800 text-emerald-50 p-1.5 rounded-full">
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
-                <p className="text-[13px] font-bold text-emerald-900 leading-tight">DESK EXPLORER ✨</p>
-                <p className="text-[10px] font-semibold text-emerald-700">Tap an item to inspect your Buddy's gear!</p>
+                <p className="text-[13px] font-bold text-emerald-900 leading-tight">
+                  {getStoryGearTitle()}
+                </p>
+                <p className="text-[10px] font-semibold text-emerald-700">
+                  {scene.instruction || "Tap any item to see it pop up!"}
+                </p>
               </div>
             </div>
-            
-            {/* Right Header: Voice Recorder */}
-            <div className="bg-pink-50 border border-pink-200 p-2.5 rounded-2xl flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="bg-pink-500 text-pink-50 p-1.5 rounded-full">
-                  <Volume2 className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col">
-                  <p className="text-[13px] font-bold text-rose-900 leading-tight">Read Aloud Voice Recorder</p>
-                  <p className="text-[10px] font-semibold text-rose-700">
-                    {isRecording ? 'Listening & recording your voice! 🎤' : 'Tap 🔴 to record your reading voice!'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsRecording(prev => !prev)}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 shrink-0 shadow-sm active:scale-95 transition-all cursor-pointer ${
-                  isRecording ? 'bg-red-600 text-white animate-pulse' : 'bg-rose-500 hover:bg-rose-600 text-white'
-                }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-white animate-ping' : 'bg-white'}`}></span>
-                {isRecording ? 'Stop ⏹' : 'Record 🔴'}
-              </button>
-            </div>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Tap to Inspect ✨
+            </span>
           </div>
 
           {/* Items Grid */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {(scene.objects || []).map((obj, idx) => {
               const bgColors = ['bg-sky-100 border-sky-200', 'bg-pink-100 border-pink-200', 'bg-amber-100 border-amber-200', 'bg-indigo-100 border-indigo-200'];
               const hoverColors = ['hover:bg-sky-200', 'hover:bg-pink-200', 'hover:bg-amber-200', 'hover:bg-indigo-200'];
@@ -75,33 +93,25 @@ export default function InteractivePanel({
               return (
                 <button
                   key={obj.id}
-                  onClick={() => handleDeskItemClick(obj.id)}
-                  className={`p-3 border-2 rounded-2xl flex flex-col items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 group ${bgColors[idx % 4]} ${hoverColors[idx % 4]} ${
+                  onClick={() => handleItemClick(obj)}
+                  className={`p-3 border-2 rounded-2xl flex flex-col items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 group cursor-pointer ${bgColors[idx % 4]} ${hoverColors[idx % 4]} ${
                     inspectedObject === obj.id ? 'ring-2 ring-slate-400 scale-105' : ''
                   }`}
                 >
                   <span className="text-3xl group-hover:scale-110 transition-transform mb-1">{obj.icon}</span>
-                  <span className={`text-[10px] font-black uppercase tracking-wide ${textColors[idx % 4]}`}>{obj.name}</span>
+                  <span className={`text-[10px] font-black uppercase tracking-wide text-center leading-tight ${textColors[idx % 4]}`}>{obj.name}</span>
                 </button>
               );
             })}
           </div>
-
-          {inspectedObject && (
-            <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center text-xs font-bold text-slate-700 shadow-inner">
-              <span>
-                {inspectedObject === 'bottle' && '💧 Buddy Bottle: A special blue water bottle with a rocket sticker!'}
-                {inspectedObject === 'bag' && '🎒 Schoolbag: Aarav\'s sturdy red backpack.'}
-                {inspectedObject === 'pencil' && '✏️ Pencil: Ready for drawing adventures!'}
-                {inspectedObject === 'sticker' && '🚀 Rocket Sticker: Buddy\'s emblem of hope and speed!'}
-              </span>
-            </div>
-          )}
         </div>
       )}
 
-      {/* SCENE 2: Search Quest — Find the Forgotten Item */}
-      {scene.id === 2 && (
+      {/* BOTTLE-THAT-WAITED SPECIFIC CHAPTER QUESTS (Never shown for other stories) */}
+      {activeStoryId === 'bottle-that-waited' && (
+        <>
+          {/* SCENE 2: Search Quest — Find the Forgotten Item */}
+          {scene.id === 2 && (
         <div className="bg-gradient-to-r from-amber-100/90 to-orange-100/80 border-2 border-amber-300 p-3.5 rounded-2xl flex flex-col gap-2.5 shadow-md">
           <p className="text-xs md:text-sm font-bold text-amber-950 flex items-center gap-1.5 font-cinzel">
             <span>🔎 Explorer Quest:</span>
@@ -399,8 +409,10 @@ export default function InteractivePanel({
           )}
         </div>
       )}
+      </>
+      )}
 
-      {/* GENERIC CHOICE / QUIZ CARD (Works for any story including The Secret Cave!) */}
+      {/* GENERIC CHOICE / QUIZ CARD (Works for each story!) */}
       {scene.quiz && (
         <div className="bg-gradient-to-r from-amber-100/95 via-orange-100/90 to-amber-100/95 border-3 border-amber-400 p-3.5 rounded-2xl flex flex-col gap-2.5 shadow-lg my-1">
           <p className="text-xs md:text-sm font-bold text-amber-950 flex items-center gap-1.5 font-['Fredoka',sans-serif]">
@@ -436,8 +448,8 @@ export default function InteractivePanel({
         </div>
       )}
 
-      {/* GENERIC OBJECT EXPLORER (For scenes with clickable objects) */}
-      {!scene.quiz && scene.objects && scene.id !== 1 && (
+      {/* OBJECT EXPLORER (For scenes with clickable items belonging to this story) */}
+      {scene.objects && scene.id !== 1 && activeStoryId !== 'bottle-that-waited' && (
         <div className="bg-gradient-to-r from-amber-100/90 to-sky-100/80 border-2 border-amber-300 p-2.5 rounded-2xl flex flex-col gap-2 shadow-md my-1">
           <p className="text-xs font-bold text-amber-950 flex items-center gap-1.5 font-['Fredoka',sans-serif]">
             <Search className="w-4 h-4 text-amber-700 animate-bounce" />
@@ -448,8 +460,8 @@ export default function InteractivePanel({
             {scene.objects.map((obj) => (
               <button
                 key={obj.id}
-                onClick={() => handleDeskItemClick(obj.id)}
-                className={`p-2 border-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 group ${inspectedObject === obj.id
+                onClick={() => handleItemClick(obj)}
+                className={`p-2 border-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 group cursor-pointer ${inspectedObject === obj.id
                     ? 'bg-amber-200 border-amber-500 scale-105 ring-2 ring-amber-400/50'
                     : 'bg-[#fffdf8] hover:bg-amber-200/80 border-amber-300/80'
                   }`}
@@ -459,12 +471,95 @@ export default function InteractivePanel({
               </button>
             ))}
           </div>
+        </div>
+      )}
 
-          {inspectedObject && (
-            <div className="bg-white/90 border border-amber-400 p-2 rounded-xl text-center text-xs font-bold text-amber-950 shadow-inner">
-              {scene.objects.find(o => o.id === inspectedObject)?.dialogue || scene.objects.find(o => o.id === inspectedObject)?.narratorReply}
+      {/* MAGICAL ITEM POPUP MODAL */}
+      {popupObject && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-fadeIn"
+          onClick={() => {
+            soundFX.playPop();
+            setPopupObject(null);
+          }}
+        >
+          <div 
+            className="bg-gradient-to-b from-amber-50 via-white to-sky-50 border-4 border-amber-400 rounded-3xl p-5 md:p-6 max-w-sm w-full shadow-2xl relative flex flex-col items-center text-center gap-3 animate-scaleUp text-slate-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Close Button */}
+            <button
+              onClick={() => {
+                soundFX.playPop();
+                setPopupObject(null);
+              }}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-amber-200 hover:bg-amber-300 text-amber-950 flex items-center justify-center font-bold border border-amber-300 shadow-sm cursor-pointer transition-all active:scale-95"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Glowing Big Animated Icon */}
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-200 via-pink-100 to-sky-200 flex items-center justify-center text-5xl shadow-md border-2 border-amber-300 animate-bounce mt-1">
+              {popupObject.icon}
             </div>
-          )}
+
+            {/* Title / Name */}
+            <div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight leading-tight">
+                {popupObject.name}
+              </h3>
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200 mt-1 inline-block">
+                ✨ Story Item Discovered!
+              </span>
+            </div>
+
+            {/* Character Dialogue Speech Bubble */}
+            {popupObject.dialogue && (
+              <div className="bg-amber-100/90 border-2 border-amber-300 rounded-2xl p-3 w-full shadow-xs relative text-left">
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 block mb-0.5 flex items-center gap-1">
+                  <span>💬</span>
+                  <span>{popupObject.name} says:</span>
+                </span>
+                <p className="text-xs md:text-sm font-black text-amber-950 leading-snug">
+                  {popupObject.dialogue}
+                </p>
+              </div>
+            )}
+
+            {/* Narrator Explanation */}
+            {popupObject.narratorReply && (
+              <div className="bg-sky-50 border border-sky-200 rounded-2xl p-2.5 w-full text-slate-700 text-xs font-semibold leading-relaxed text-left">
+                <span className="text-[10px] font-black uppercase tracking-wider text-sky-800 block mb-0.5">
+                  📖 Story Note:
+                </span>
+                <p>{popupObject.narratorReply}</p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 w-full pt-1">
+              <button
+                onClick={() => {
+                  soundFX.playPop();
+                  const speakText = `${popupObject.name}. ${popupObject.dialogue ? popupObject.dialogue.replace(/["“”]/g, '') : ''} ${popupObject.narratorReply || ''}`;
+                  narrator.speak(speakText, 'NARRATOR');
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span>Read Aloud 🔊</span>
+              </button>
+              <button
+                onClick={() => {
+                  soundFX.playSparkle();
+                  setPopupObject(null);
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 font-black text-xs flex items-center justify-center gap-1 shadow-sm transition-all cursor-pointer"
+              >
+                <span>Awesome! ✨</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

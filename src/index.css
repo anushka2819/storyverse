@@ -638,6 +638,27 @@ body {
   box-shadow: inset 0 0 40px rgba(180, 120, 50, 0.15);
 }
 
+/* Page Curvature Inner Shadow for Open Book Spread */
+.book-page-curve-left {
+  background-image: 
+    linear-gradient(to right, 
+      rgba(0, 0, 0, 0.06) 0%, 
+      transparent 15%, 
+      transparent 85%, 
+      rgba(0, 0, 0, 0.22) 98%, 
+      rgba(0, 0, 0, 0.4) 100%);
+}
+
+.book-page-curve-right {
+  background-image: 
+    linear-gradient(to right, 
+      rgba(0, 0, 0, 0.4) 0%, 
+      rgba(0, 0, 0, 0.22) 2%, 
+      transparent 15%, 
+      transparent 88%, 
+      rgba(0, 0, 0, 0.06) 100%);
+}
+
 /* Sunken Center Spine Gutter (Shadow where left & right pages meet) */
 .book-spine-gutter {
   background: linear-gradient(to right,

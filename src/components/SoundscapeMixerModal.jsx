@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Volume2, VolumeX, Sparkles, Sliders, Moon, CloudRain, Trees, Compass } from 'lucide-react';
 import { soundFX } from '../services/soundEffects';
 
-export default function SoundscapeMixerModal({ isOpen, onClose, onBadgeEarned }) {
+export default function SoundscapeMixerModal({ isOpen, onClose, storyId = null, onBadgeEarned }) {
   const [tracks, setTracks] = useState({
     rain: { name: 'Rainy Window', emoji: '🌧️', active: false, volume: 40 },
     forest: { name: 'Enchanted Forest', emoji: '🌲', active: false, volume: 40 },
@@ -11,6 +11,18 @@ export default function SoundscapeMixerModal({ isOpen, onClose, onBadgeEarned })
   });
 
   const [activePreset, setActivePreset] = useState(null);
+
+  useEffect(() => {
+    if (isOpen && storyId) {
+      if (storyId === 'curious-rocket') {
+        applyPreset('cosmic');
+      } else if (storyId === 'secret-cave' || storyId === 'bear-lost-pencil') {
+        applyPreset('forest');
+      } else if (storyId === 'dolly-midnight-adventure') {
+        applyPreset('rain');
+      }
+    }
+  }, [isOpen, storyId]);
 
   // Sync with audio service when track states change
   const toggleTrack = (key) => {

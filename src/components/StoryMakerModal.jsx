@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, X, ChevronRight, ChevronLeft, Volume2, Printer, RefreshCw, Award, BookOpen, Heart, Wand2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../services/soundEffects';
+import { stripEmojisForTTS } from '../services/narratorService';
 
 const HEROES = [
   { id: 'pip', name: 'Pip the Space Pup', emoji: '🐶', color: 'from-amber-400 to-orange-500', trait: 'Brave & Curious' },
@@ -83,7 +84,10 @@ export default function StoryMakerModal({ isOpen, onClose }) {
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    const clean = stripEmojisForTTS(text);
+    if (!clean) return;
+
+    const utterance = new SpeechSynthesisUtterance(clean);
     utterance.rate = 0.9;
     utterance.pitch = 1.15;
     utterance.onstart = () => setIsSpeaking(true);
